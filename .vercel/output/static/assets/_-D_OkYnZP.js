@@ -1,0 +1,1 @@
+import{c as e}from"./index-BOmIMiVp.js";var t=e;export{t as component};

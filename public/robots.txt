@@ -1,0 +1,6 @@
+# TerraLens. Indexing is gated (x-robots-tag / VITE_INDEXABLE).
+# Do not treat a preview host as the public catalogue.
+User-agent: *
+Disallow: /
+
+Sitemap: https://terralens.grok.me/sitemap.xml

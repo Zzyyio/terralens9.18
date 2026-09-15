@@ -1,0 +1,38 @@
+{
+  "url": "http://127.0.0.1:8081/",
+  "viewports": {
+    "desktop": {
+      "width": 1280,
+      "height": 800,
+      "status": 200,
+      "title": "See how the Earth works · TerraLens",
+      "hasCanvas": false,
+      "bodyTextLen": 2725,
+      "bodyTextHash": "92b40511f2c1c4d808948270305a7d924b2f6ec6902e838d252e4190d7c77c08",
+      "bodyTextPrefix": "Skip to content TerraLens See how the Earth works Realms Explore",
+      "horizontalOverflow": false,
+      "consoleErrors": [],
+      "pageErrors": [],
+      "screenshot": "/workspace/screenshots/app-builder-built.png"
+    },
+    "mobile": {
+      "width": 390,
+      "height": 844,
+      "status": 200,
+      "title": "See how the Earth works · TerraLens",
+      "hasCanvas": false,
+      "bodyTextLen": 2656,
+      "bodyTextHash": "6432251fc1600b367ca1e1b44b3dfde2b2017e3a57addd62e7a6d5407363e079",
+      "bodyTextPrefix": "Skip to content TerraLens GEOSCIENCE STUDIO See how the Earth wo",
+      "horizontalOverflow": false,
+      "consoleErrors": [],
+      "pageErrors": [],
+      "screenshot": "/workspace/screenshots/app-builder-built-mobile.png"
+    }
+  },
+  "brandWarnings": [],
+  "authWarnings": [],
+  "verdictFile": "/workspace/screenshots/app-builder-built.json",
+  "divergesFromBaseline": false,
+  "baselineReasons": []
+}

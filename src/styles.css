@@ -1,0 +1,121 @@
+@import "tailwindcss";
+
+@theme {
+  --color-void: #07090c;
+  --color-basalt: #0e1412;
+  --color-trench: #121a1c;
+  --color-slate: #1c2628;
+  --color-mist: #8b9a97;
+  --color-chalk: #f4efe6;
+  --color-paper: #faf7f2;
+  --color-glacier: #3ee0c6;
+  --color-ice: #7fd4ff;
+  --color-magma: #ff6a3d;
+  --color-sandstone: #e8b86d;
+  --color-moss: #7c9a6a;
+  --color-fault: #e24b4b;
+  --color-glass: rgb(255 255 255 / 0.08);
+  --color-glass-border: rgb(255 255 255 / 0.1);
+
+  --font-display: "Fraunces", "Iowan Old Style", "Palatino Linotype", serif;
+  --font-sans: "Geist", "Segoe UI", system-ui, sans-serif;
+  --font-mono: "Geist Mono", "SF Mono", ui-monospace, monospace;
+
+  --radius-sm: 10px;
+  --radius-md: 16px;
+  --radius-lg: 20px;
+  --radius-pill: 999px;
+
+  --ease-studio: cubic-bezier(0.22, 1, 0.36, 1);
+  --duration-micro: 180ms;
+  --duration-ui: 280ms;
+  --duration-scene: 600ms;
+}
+
+@layer base {
+  html {
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    background: var(--color-void);
+    color: var(--color-chalk);
+  }
+
+  html,
+  body,
+  #app {
+    min-height: 100%;
+  }
+
+  body {
+    font-family: var(--font-sans);
+    background: var(--color-void);
+    color: var(--color-chalk);
+    line-height: 1.625;
+  }
+
+  h1,
+  h2,
+  h3 {
+    text-wrap: balance;
+  }
+
+  p {
+    text-wrap: pretty;
+  }
+
+  canvas {
+    display: block;
+  }
+
+  button:not(:disabled),
+  [role="button"]:not(:disabled) {
+    cursor: pointer;
+  }
+
+  ::selection {
+    background: color-mix(in oklab, var(--color-glacier) 40%, transparent);
+    color: var(--color-chalk);
+  }
+
+  :focus-visible {
+    outline: 2px solid var(--color-glacier);
+    outline-offset: 3px;
+  }
+
+  .skip-link {
+    position: absolute;
+    left: -999px;
+    top: 0.75rem;
+    z-index: 60;
+  }
+  .skip-link:focus {
+    left: 1rem;
+  }
+}
+
+@utility glass {
+  background: rgb(255 255 255 / 0.08);
+  border: 1px solid rgb(255 255 255 / 0.1);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+}
+
+@utility section-label {
+  font-family: var(--font-sans);
+  font-size: 0.75rem;
+  line-height: 1rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--color-mist);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
