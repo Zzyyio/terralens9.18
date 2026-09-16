@@ -2,7 +2,7 @@ export type CaseStudy = {
   slug: string;
   title: string;
   place: string;
-  region: "UK" | "US" | "Shared";
+  region: "UK" | "US" | "Shared" | "East Asia";
   labs: string[];
   lede: string;
   body: string[];
@@ -746,6 +746,107 @@ export const CASES: CaseStudy[] = [
     sources: [
       { label: "NOAA / NWS Denver" },
       { label: "Met Office radiosondes" },
+    ],
+  },
+  {
+    slug: "hong-kong-landslide",
+    title: "Hong Kong slopes",
+    place: "Hong Kong Island · New Territories",
+    region: "East Asia",
+    labs: ["mass-movement", "weathering"],
+    lat: 22.28,
+    lon: 114.16,
+    zoom: 11,
+    lede: "Weathered granite, steep catchments, a city on the toe. Holderness is till at the sea; Hong Kong is saprolite on a slope.",
+    body: [
+      "Hong Kong’s hills are granite and volcanic rock, deeply weathered in a subtropical monsoon. The saprolite is thick; joints open; a rain band turns a slope into a debris flow. The 1972 Sau Mau Ping disaster is the classroom sentence: fill and weathered granite, not a chalk cliff.",
+      "Compare Holderness. There the budget is waves versus till. Here the budget is rain versus a weathered slope above a dense city. Same syllabus word — mass movement — different rock, different trigger, different map.",
+      "The weathering lab’s granite close-up is the mineral story. The mass-movement lab is the failure. A groyne will not save a Hong Kong slope. A cut-and-fill wall might, if the drainage is honest.",
+      "Classroom move: open mass-movement, freeze a rotational slide, then jump to the Holderness case. Ask which one the sea wrote and which one the rain wrote before you show the map.",
+    ],
+    exam: {
+      prompt: "Contrast a Hong Kong hillslope failure with Holderness cliff retreat, using rock type and the triggering process.",
+      hint: "Hong Kong: weathered granite + intense rain. Holderness: glacial till + waves. Same word (mass movement / erosion), different agents.",
+    },
+    sources: [
+      { label: "GEO Hong Kong — landslide studies" },
+      { label: "BGS — Holderness till" },
+    ],
+  },
+  {
+    slug: "shanghai-huangpu",
+    title: "Shanghai, Meiyu and the Huangpu",
+    place: "Huangpu · Yangtze delta",
+    region: "East Asia",
+    labs: ["hydrograph", "rivers", "storm-surge"],
+    lat: 31.23,
+    lon: 121.49,
+    zoom: 10,
+    lede: "A drowned river on a delta. Meiyu, tide, and a flood wall. The Mississippi is a continental drain; the Huangpu is a tidal megacity creek.",
+    body: [
+      "Shanghai sits on the Yangtze delta. The Huangpu is a tidal river: the sea comes in, the basin is low, and a plum-rain (Meiyu) hydrograph can sit on a high tide. That is not orographic cloud on a mountain, and it is not a meander textbook on the Mississippi floodplain — though both are floodplain bargains.",
+      "Compare Somerset Levels: a floodplain that sits wet for weeks. Shanghai’s bargain is a wall and a tide gate as well as a channel. The hydrograph lab is the rain-to-peak delay. Storm surge is the sea’s extra.",
+      "Pudong’s skyline is not the physical map. The physical map is silt, a drowned valley, and a monsoon that is not a UK winter front.",
+      "Classroom move: open the hydrograph, then the live-weather pin on Shanghai. Ask whether today’s rain is Meiyu, a typhoon remnant, or a winter front before you read the chart.",
+    ],
+    exam: {
+      prompt: "Explain why a high tide plus Meiyu rain is a different flood story from a Mississippi overbank flood.",
+      hint: "Tidal drowned river vs continental floodplain. Sea level is part of Shanghai’s peak; the Mississippi’s peak is catchment rain and snowmelt.",
+    },
+    sources: [
+      { label: "Shanghai Water Authority — Huangpu tide" },
+      { label: "CMA — Meiyu" },
+    ],
+  },
+  {
+    slug: "typhoon-mangkhut",
+    title: "Typhoon Mangkhut",
+    place: "Pearl River Delta · Hong Kong · Macau",
+    region: "East Asia",
+    labs: ["tropical-cyclone", "storm-surge"],
+    lat: 22.2,
+    lon: 113.55,
+    zoom: 7,
+    state: "t=0.4",
+    lede: "A typhoon is a tropical cyclone. The same warm-core engine as Katrina or Sandy, a western North Pacific name.",
+    body: [
+      "Mangkhut (2018) crossed the northern Philippines and then the Pearl River Delta. Hong Kong and Macau felt a wind field and a surge, not a UK winter front. The engine is a warm core over a warm sea. The name changes by basin: hurricane, typhoon, cyclone — one process.",
+      "Compare Katrina and Sandy. Those are Atlantic names for the same class of storm. Outer Banks is a sandy barrier in the same Atlantic budget. The Pearl River Delta is a drowned river and a megacity instead of a barrier island, but the surge physics is the long-wave pile of water the storm-surge lab shows.",
+      "Do not show a chalk cliff when you say typhoon. Do not show a hurricane when you say tsunami. The tropical-cyclone lab is this; the tsunami lab is a different wave.",
+      "Classroom move: freeze the cyclone lab on the eyewall, pin Hong Kong and New Orleans, and ask which coast is the barrier island and which is the drowned delta before you reveal the map.",
+    ],
+    exam: {
+      prompt: "Using the warm-core engine, explain why Mangkhut and Katrina are the same class of storm despite different names.",
+      hint: "Basin names (typhoon / hurricane). Same physics: warm sea, low shear, Coriolis, eyewall, surge.",
+    },
+    sources: [
+      { label: "HKO — Super Typhoon Mangkhut" },
+      { label: "NOAA — hurricane vs typhoon" },
+    ],
+  },
+  {
+    slug: "loess-plateau",
+    title: "Loess Plateau",
+    place: "Shaanxi · Shanxi · Gansu",
+    region: "East Asia",
+    labs: ["soil-erosion", "soil-profile", "aeolian"],
+    lat: 36.6,
+    lon: 109.5,
+    zoom: 6,
+    lede: "Wind-laid silt, then water. A soil-erosion classroom the size of a province. The Dust Bowl is the US pair, not a meander.",
+    body: [
+      "The Loess Plateau is wind-laid silt from Central Asian deserts, metres to hundreds of metres thick. Water then cuts gullies. Terraces and check dams are the human reply. This is aeolian deposition plus fluvial erosion — two labs, one landscape.",
+      "Compare the Dust Bowl: wind lifting a broken A horizon on the US Great Plains. There the silt left. Here the silt arrived, then water dissected it. Same word (erosion), different agent, different time.",
+      "A soil pit on the Plateau shows thickness you can stand in. The soil-profile lab’s horizons still apply; the E may be missing. Colour is not the class.",
+      "Classroom move: open aeolian on a barchan, then soil-erosion on a gully, then this case. Ask which process laid the silt and which process is cutting it now.",
+    ],
+    exam: {
+      prompt: "Explain how the Loess Plateau records both wind deposition and water erosion, using a US Dust Bowl comparison.",
+      hint: "Wind laid the silt (aeolian). Water cuts gullies (fluvial). Dust Bowl: wind removing a broken A horizon — the opposite flux.",
+    },
+    sources: [
+      { label: "CAS / FAO — Loess Plateau restoration" },
+      { label: "USDA — Dust Bowl" },
     ],
   },
 ];

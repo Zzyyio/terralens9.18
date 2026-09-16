@@ -12,6 +12,7 @@ export const Route = createFileRoute("/realms/$realm")({
   beforeLoad: ({ params }) => {
     const alias = REALM_ALIASES[params.realm];
     if (alias) throw redirect({ to: "/realms/$realm", params: { realm: alias } });
+    if (!REALMS.some((r) => r.slug === params.realm)) throw notFound();
   },
   head: ({ params }) => {
     const meta = REALMS.find((r) => r.slug === params.realm);

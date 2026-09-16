@@ -2,8 +2,9 @@ import { Canvas, type CanvasProps } from "@react-three/fiber";
 import { Suspense, useEffect, useState, type ReactNode } from "react";
 import * as THREE from "three";
 
-export function useWebGL(): boolean {
-  const [ok, setOk] = useState(true);
+/** null = not yet tested (avoid a black canvas while we probe). */
+export function useWebGL(): boolean | null {
+  const [ok, setOk] = useState<boolean | null>(null);
   useEffect(() => {
     try {
       const c = document.createElement("canvas");
@@ -41,7 +42,7 @@ export function ClientCanvas({
   const webgl = useWebGL();
   useEffect(() => setMounted(true), []);
 
-  if (!mounted) {
+  if (!mounted || webgl === null) {
     return <div className={className ?? "absolute inset-0 bg-void"} aria-hidden />;
   }
   if (!webgl) return null;

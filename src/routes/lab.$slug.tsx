@@ -56,15 +56,7 @@ function LabPage() {
   return (
     <>
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
-      <article className="sr-only">
-        <h1>{lab.title}</h1>
-        <p>{lab.hook}</p>
-        <p>By the end you can {lab.objective.charAt(0).toLowerCase() + lab.objective.slice(1)}</p>
-        {lab.why.map((w) => (
-          <p key={w.slice(0, 40)}>{w}</p>
-        ))}
-      </article>
-      <Suspense fallback={<LabLoadFallback title={lab.title} />}>
+      <Suspense fallback={<LabLoadFallback slug={lab.slug} title={lab.title} />}>
         <LabPlayer lab={lab} scene={<Scene />} />
       </Suspense>
     </>

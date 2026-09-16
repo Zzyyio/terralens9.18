@@ -7,9 +7,20 @@ export type FigureProps = {
   credit: string;
   className?: string;
   size?: "sm" | "md";
+  id?: string;
 };
 
-export function Figure({ src, alt, caption, credit, className, size = "md" }: FigureProps) {
+function figureId(src: string, caption: string): string {
+  const fromSrc = src.replace(/^.*\//, "").replace(/\.[a-z0-9]+$/i, "");
+  const slug = (fromSrc || caption)
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-|-$/g, "");
+  return `fig-${slug}`;
+}
+
+export function Figure({ src, alt, caption, credit, className, size = "md", id }: FigureProps) {
+  const capId = id ?? figureId(src, caption);
   return (
     <figure
       className={cn(
@@ -24,7 +35,7 @@ export function Figure({ src, alt, caption, credit, className, size = "md" }: Fi
         className={cn("w-full object-cover", size === "sm" ? "max-h-36" : "max-h-52")}
         loading="lazy"
       />
-      <figcaption className="px-3 py-2 font-mono text-[10px] leading-4 text-mist">
+      <figcaption id={capId} className="px-3 py-2 font-mono text-[10px] leading-4 text-mist">
         {caption}
         <span className="block text-mist/70">{credit}</span>
       </figcaption>

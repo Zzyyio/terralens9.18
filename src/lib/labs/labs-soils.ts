@@ -201,7 +201,7 @@ export const SOIL_LABS: LabMeta[] = [
       { claim: "Weathering and erosion are the same word.", truth: "Weathering breaks in place. Erosion moves the bits." },
       { claim: "Chemical weathering is ‘stronger’ than mechanical.", truth: "Climate chooses the mix. Not a ranking of virtue." },
     ],
-    cases: [{ slug: "yorkshire-dales", label: "Carbonation" }, { slug: "grand-canyon", label: "Joints / canyon rim" }],
+    cases: [{ slug: "yorkshire-dales", label: "Carbonation" }, { slug: "hong-kong-landslide", label: "Hong Kong granite saprolite" }],
     teacher: {
       script:
         "Point at each of the three blocks: mechanical, chemical, biological.\nPlay. Frost wedges: water freezes, expands. Mechanical.\nCarbonation pits carbonate rock with weak carbonic acid. Chemical. Karst cousin. Dales.\nRoots, lichens, burrowers. Biological.\nClimate chooses the mix. Not a ranking of virtue.\nWeathering is not weather. Weathering is rock breakdown. Weather is the atmosphere’s mood.\nThat is the misconception.\nDo not mix erosion with weathering. Weathering breaks. Erosion moves. Grand Canyon walls weather; the river exports.\nFinish in Check.",
@@ -251,7 +251,7 @@ export const SOIL_LABS: LabMeta[] = [
       { claim: "Only wind erodes soil.", truth: "Splash and rill are water. Wind is the dry extra. Name all three." },
       { claim: "Vegetation is decoration.", truth: "Cover and roots are the hold. Bare is the experiment." },
     ],
-    cases: [{ slug: "dust-bowl", label: "Dust Bowl" }, { slug: "somerset-levels", label: "Wet lowland contrast" }],
+    cases: [{ slug: "dust-bowl", label: "Dust Bowl" }, { slug: "loess-plateau", label: "Loess Plateau" }],
     teacher: {
       script:
         "Two plots. Bare on the left, cover on the right.\nPlay the storm. Splash detaches, then rills cut, then wind on the bare plot.\nRain splash is the first move. A rill is a small channel. Then gully.\nThe vegetated plot holds. Cover and roots slow water and wind.\nSoil is not infinite. An A horizon is a budget. Dust Bowl spent it.\nThat is the misconception.\nDust Bowl is this toggle in history. Peaty UK uplands and Somerset bare fields are the same idea at smaller scale.\nProcess first, then the history. Do not moralise without the mechanism.\nName splash, rill, deflation before you sit down.\nFinish in Check.",

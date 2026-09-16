@@ -99,7 +99,7 @@ export const NATURAL_EARTH_STYLE = {
   ],
 };
 
-export type MapBasemap = "openfreemap" | "osm" | "carto" | "natural-earth";
+export type MapBasemap = "openfreemap" | "osm" | "carto" | "natural-earth" | "relief";
 
 type MapLike = {
   on: (ev: string, fn: (e?: { error?: { status?: number; message?: string }; sourceDataType?: string }) => void) => void;

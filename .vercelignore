@@ -1,0 +1,10 @@
+.vercel
+screenshots
+artifacts
+attachments
+.git
+.tanstack
+tools
+scripts/blender
+public/models/previews
+public/hdri/kloppenheim_06_1k.hdr

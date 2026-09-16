@@ -1,4 +1,5 @@
 @import "tailwindcss";
+@import "./fonts.css";
 
 @theme {
   --color-void: #07090c;
@@ -90,6 +91,18 @@
   }
   .skip-link:focus {
     left: 1rem;
+  }
+
+  @media print {
+    header,
+    footer,
+    [data-print-hide] {
+      display: none !important;
+    }
+    body {
+      background: white;
+      color: #111;
+    }
   }
 }
 

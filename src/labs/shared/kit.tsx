@@ -1,10 +1,11 @@
-import { Html, OrbitControls } from "@react-three/drei";
-import { useFrame } from "@react-three/fiber";
-import { useMemo, type ReactNode } from "react";
+import { Environment, Html, OrbitControls } from "@react-three/drei";
+import { useFrame, useThree } from "@react-three/fiber";
+import { useEffect, useMemo, type ReactNode } from "react";
 import * as THREE from "three";
 import { useLabControls } from "@/lib/store/lab-controls";
 import { cn } from "@/lib/utils";
 import { useRockNormal } from "./materials";
+import { IceBody, WaterBody, jointedBlockGeometry } from "./parts";
 
 export function Tag({
   pos,
@@ -17,7 +18,6 @@ export function Tag({
   text: string;
   tone?: "chalk" | "glacier" | "magma" | "sandstone" | "ice" | "moss" | "fault";
   occlude?: boolean;
-  /** Mechanism sentence. Makes the label a click-to-inspect hotspot. */
   note?: string;
 }) {
   const labels = useLabControls((s) => s.labels);
@@ -64,6 +64,8 @@ export function Tag({
   );
 }
 
+export { Part } from "./parts";
+
 export function InspectHotspot({
   name,
   note,
@@ -79,6 +81,13 @@ export function InspectHotspot({
       onClick={(e) => {
         e.stopPropagation();
         setInspect({ name, note });
+      }}
+      onPointerOver={(e) => {
+        e.stopPropagation();
+        document.body.style.cursor = "pointer";
+      }}
+      onPointerOut={() => {
+        document.body.style.cursor = "auto";
       }}
     >
       {children}
@@ -135,16 +144,31 @@ export function SceneBtn({
   );
 }
 
-/** Key + fill + weak rim. Dark studio void, not a grey room. */
+/** Local IBL. Packed glTF PBR is grey plastic without an environment. HDRI first; RoomEnvironment if the .hdr 404s. */
+export function StudioEnvironment() {
+  const { gl, scene } = useThree();
+  useEffect(() => {
+    scene.environmentIntensity = 0.82;
+    const prev = gl.toneMappingExposure;
+    gl.toneMappingExposure = 1.18;
+    return () => {
+      gl.toneMappingExposure = prev;
+    };
+  }, [gl, scene]);
+  return <Environment files="/hdri/studio_small_03_1k.hdr" background={false} />;
+}
+
+/** Key + fill + weak rim + studio IBL so packed glTF metals and rock read as different substances. */
 export function LabLights({
-  ambient = 0.28,
-  keyIntensity = 2.05,
+  ambient = 0.18,
+  keyIntensity = 1.85,
 }: {
   ambient?: number;
   keyIntensity?: number;
 }) {
   return (
     <>
+      <StudioEnvironment />
       <hemisphereLight args={["#9ec4d4", "#1c1814", 0.38]} />
       <ambientLight intensity={ambient} color="#c9d4d0" />
       <directionalLight
@@ -163,7 +187,7 @@ export function LabLights({
         shadow-camera-bottom={-9}
       />
       <directionalLight position={[-3.4, 1.4, -2.4]} intensity={0.42} color="#7fd4ff" />
-      <directionalLight position={[0.2, -2.4, 4]} intensity={0.22} color="#f4efe6" />
+      <directionalLight position={[0.2, -2.4, 4]} intensity={0.24} color="#f4efe6" />
     </>
   );
 }
@@ -177,7 +201,7 @@ export function StudioOrbit({
   return (
     <OrbitControls
       key={viewKey}
-      enablePan={false}
+      enablePan
       enableDamping
       dampingFactor={0.08}
       minDistance={minDistance}
@@ -189,166 +213,15 @@ export function StudioOrbit({
   );
 }
 
-export function ExaggerationNote({ text }: { text: string }) {
-  return (
-    <p className="pointer-events-none absolute left-1/2 top-16 z-10 -translate-x-1/2 rounded-full border border-white/10 bg-basalt/70 px-3 py-1 font-mono text-[10px] text-mist backdrop-blur-md md:top-auto md:bottom-24">
-      {text}
-    </p>
-  );
-}
-
-/** Subtle studio ground so models sit, not float. */
 export function StudioFloor({ size = 14 }: { size?: number }) {
-  const mat = useMemo(
-    () =>
-      new THREE.MeshStandardMaterial({
-        color: "#0e1412",
-        roughness: 0.95,
-        metalness: 0,
-      }),
-    [],
-  );
-  return (
-    <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, -0.02, 0]} material={mat} receiveShadow>
-      <circleGeometry args={[size, 64]} />
-    </mesh>
-  );
-}
-
-export function StepCamera({
-  positions,
-}: {
-  positions: [number, number, number][];
-}) {
-  const step = useLabControls((s) => s.step);
-  const tmp = useMemo(() => new THREE.Vector3(), []);
-  useFrame(({ camera }) => {
-    const p = positions[Math.min(step, positions.length - 1)] ?? positions[0];
-    if (!p) return;
-    tmp.set(p[0], p[1], p[2]);
-    camera.position.lerp(tmp, 0.04);
-  });
-  return null;
-}
-
-export function WaterSheet({
-  width,
-  depth,
-  y = 0.018,
-  color = "#1a4a6e",
-  opacity = 0.78,
-}: {
-  width: number;
-  depth: number;
-  y?: number;
-  color?: string;
-  opacity?: number;
-}) {
-  return (
-    <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, y, 0]} receiveShadow>
-      <planeGeometry args={[width, depth, 48, 48]} />
-      <meshPhysicalMaterial
-        color={color}
-        roughness={0.06}
-        metalness={0.06}
-        transmission={0.28}
-        thickness={0.55}
-        ior={1.333}
-        transparent
-        opacity={opacity}
-        envMapIntensity={0.85}
-      />
-    </mesh>
-  );
-}
-
-/** Ice with thickness and a wet look. Not a white sticker. */
-export function IceVolume({
-  size,
-  position,
-  rotation = [0, 0, 0],
-}: {
-  size: [number, number, number];
-  position: [number, number, number];
-  rotation?: [number, number, number];
-}) {
-  return (
-    <mesh position={position} rotation={rotation} castShadow>
-      <boxGeometry args={[size[0], size[1], size[2], 10, 6, 8]} />
-      <meshPhysicalMaterial
-        color="#d5eaf4"
-        roughness={0.12}
-        transmission={0.42}
-        thickness={1.15}
-        ior={1.31}
-        transparent
-        opacity={0.88}
-        clearcoat={0.35}
-        clearcoatRoughness={0.2}
-      />
-    </mesh>
-  );
-}
-
-/** Rounded crustal block — not a raw Box as landform. */
-export function CrustalRaft({
-  size,
-  position,
-  color = "#7C9A6A",
-}: {
-  size: [number, number, number];
-  position: [number, number, number];
-  color?: string;
-}) {
   const nrm = useRockNormal();
-  const nrmScale = useMemo(() => new THREE.Vector2(0.55, 0.55), []);
+  const geo = useMemo(() => new THREE.CircleGeometry(size * 0.5, 64), [size]);
+  useFrame(() => undefined);
   return (
-    <mesh position={position} castShadow receiveShadow>
-      <cylinderGeometry args={[size[0] * 0.52, size[0] * 0.55, size[1], 28, 1]} />
-      <meshStandardMaterial
-        color={color}
-        roughness={0.9}
-        metalness={0.03}
-        normalMap={nrm}
-        normalScale={nrmScale}
-      />
+    <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, -0.02, 0]} geometry={geo} receiveShadow>
+      <meshStandardMaterial color="#14181c" roughness={0.92} metalness={0.04} normalMap={nrm ?? undefined} />
     </mesh>
   );
 }
-export function Arrow3({
-  from,
-  to,
-  color = "#3EE0C6",
-  radius = 0.03,
-}: {
-  from: [number, number, number];
-  to: [number, number, number];
-  color?: string;
-  radius?: number;
-}) {
-  const { quat, mid, end, len } = useMemo(() => {
-    const start = new THREE.Vector3(...from);
-    const finish = new THREE.Vector3(...to);
-    const dir = finish.clone().sub(start);
-    const length = Math.max(0.05, dir.length());
-    const q = new THREE.Quaternion().setFromUnitVectors(new THREE.Vector3(0, 1, 0), dir.clone().normalize());
-    return {
-      quat: q,
-      mid: start.clone().lerp(finish, 0.42),
-      end: finish,
-      len: length,
-    };
-  }, [from, to]);
-  return (
-    <group>
-      <mesh position={mid} quaternion={quat}>
-        <cylinderGeometry args={[radius, radius, len * 0.78, 12]} />
-        <meshStandardMaterial color={color} roughness={0.42} metalness={0.08} />
-      </mesh>
-      <mesh position={end} quaternion={quat}>
-        <coneGeometry args={[radius * 2.4, len * 0.2, 14]} />
-        <meshStandardMaterial color={color} roughness={0.38} metalness={0.08} />
-      </mesh>
-    </group>
-  );
-}
+
+export { IceBody, WaterBody, jointedBlockGeometry };

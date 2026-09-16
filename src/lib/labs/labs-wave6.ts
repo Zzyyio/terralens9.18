@@ -39,7 +39,7 @@ export const WAVE6_LABS: LabMeta[] = [
       mc("Landslides are just fast rockfalls.", "A slump rotates. A flow mixes. A fall is free. Name the machine."),
       mc("Dry cliffs are the dangerous ones.", "Pore water is the usual trigger in till. Rain first, then the drop."),
     ],
-    cases: [{ slug: "holderness", label: "Holderness till cliffs" }, { slug: "outer-banks", label: "US Atlantic barrier and slides" }],
+    cases: [{ slug: "holderness", label: "Holderness till cliffs" }, { slug: "hong-kong-landslide", label: "Hong Kong slopes" }],
     teacher: {
       script:
         "Name crown, scar, shear, toe on a still cliff. Do not play yet.\\nAsk the third row what will make it fall. Wait.\\nRaise rain. The block rotates. Crown drops. Toe shoves.\\nThat is a slump, not a bite from the sea.\\nHolderness till. Palos Verdes is the same machine.\\nWaves pick the toe apart later — coasts lab, not this one.\\nPore pressure reduces strength. Say that in school words.\\nSpace, L, P. Then Check.",

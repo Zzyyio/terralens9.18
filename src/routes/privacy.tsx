@@ -1,5 +1,6 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import { headFor } from "@/lib/seo";
+import { CONTACT_LINE, PRODUCER_X, PRODUCER_X_HANDLE, SCHOOL_MAIL, SCHOOL_NAME, SCHOOL_URL } from "@/lib/contact";
 
 export const Route = createFileRoute("/privacy")({
   component: Privacy,
@@ -25,9 +26,7 @@ function Privacy() {
           Lab state (tilt, date, viscosity, labels) lives in the page URL and in this browser only. Copy the
           link to share a setup. Closing the tab does not send that state to a server.
         </p>
-        <p>
-          We do not track academic behaviour. There is no analytics SDK that scores a pupil’s clicks.
-        </p>
+        <p>We do not track academic behaviour. There is no analytics SDK that scores a pupil’s clicks.</p>
         <p>
           Hosting may set a Cloudflare bot-management cookie (<code className="font-mono text-sm">__cf_bm</code>
           ). That cookie is for abuse control, not classroom surveillance.
@@ -38,12 +37,35 @@ function Privacy() {
           atlas falls back to a static Natural Earth coastline we ship with the app.
         </p>
         <p>
-          Type is currently loaded from Google Fonts (Fraunces, Geist). A future build may self-host the same
-          faces. Until then, a font request leaves this origin.
+          Type is self-hosted on this origin (Fraunces, Geist, Geist Mono). A classroom that blocks Google
+          Fonts still gets the faces.
         </p>
         <p>
-          Questions: open an issue on the project repository, or write from your school address. This page is
-          the whole privacy notice. There is no hidden product.
+          Some labs embed a YouTube nocookie film. That request leaves this origin for youtube-nocookie.com
+          only when you open the Why panel and the film is on the page. Autoplay is off. There is no YouTube
+          account wall.
+        </p>
+        <p>
+          {CONTACT_LINE}{" "}
+          <a href={SCHOOL_URL} className="text-ice hover:underline" target="_blank" rel="noreferrer">
+            {SCHOOL_NAME}
+          </a>
+          ,{" "}
+          <a href={`mailto:${SCHOOL_MAIL}`} className="text-ice hover:underline">
+            {SCHOOL_MAIL}
+          </a>
+          , or{" "}
+          <a href={PRODUCER_X} className="text-ice hover:underline" target="_blank" rel="noreferrer">
+            {PRODUCER_X_HANDLE}
+          </a>
+          . This page is the whole privacy notice. There is no hidden product.
+        </p>
+        <p>
+          See also{" "}
+          <Link to="/about" className="text-ice hover:underline">
+            About
+          </Link>
+          .
         </p>
       </div>
     </main>

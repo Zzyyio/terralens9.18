@@ -5,6 +5,8 @@ import { useLabControls } from "@/lib/store/lab-controls";
 import { cn } from "@/lib/utils";
 import { Figure } from "@/components/figure";
 import { labFigures, termFigure } from "@/lib/figures";
+import { labVideo } from "@/lib/lab-videos";
+import { tenQuestions } from "@/lib/labs/ten-questions";
 
 const WHY_LABELS = [
   "Why this matters",
@@ -20,6 +22,7 @@ export function WhyPanel({ lab }: { lab: LabMeta }) {
   const setExam = useLabControls((s) => s.setExam);
   const pairs = lab.misconceptions?.length ? lab.misconceptions : [lab.misconception];
   const figs = labFigures(lab.slug);
+  const video = labVideo(lab.slug);
   const seenTermSrc = new Set<string>();
 
   return (
@@ -30,7 +33,7 @@ export function WhyPanel({ lab }: { lab: LabMeta }) {
             ["why", "Why"],
             ["terms", "Terms"],
             ["check", "Check"],
-            ["teach", "Teacher"],
+            ["teach", "Teach"],
           ] as const satisfies readonly [PanelTab, string][]
         ).map(([id, label]) => (
           <button
@@ -41,6 +44,7 @@ export function WhyPanel({ lab }: { lab: LabMeta }) {
               "flex-1 py-2.5 text-[11px] font-medium uppercase tracking-[0.12em]",
               tab === id ? "text-glacier" : "text-mist hover:text-chalk",
             )}
+            aria-label={id === "teach" ? "Teacher" : label}
           >
             {label}
           </button>
@@ -57,6 +61,24 @@ export function WhyPanel({ lab }: { lab: LabMeta }) {
                 {i === 0 && figs[1] && <Figure {...figs[1]} />}
               </div>
             ))}
+            {video && (
+              <div>
+                <p className="section-label">Film</p>
+                <div className="mt-2 overflow-hidden rounded-xl border border-white/10">
+                  <iframe
+                    title={video.title}
+                    src={`https://www.youtube-nocookie.com/embed/${video.youtubeId}`}
+                    className="aspect-video w-full"
+                    allow="accelerometer; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                    allowFullScreen
+                    loading="lazy"
+                  />
+                </div>
+                <p className="mt-2 text-[12px] leading-5 text-mist">
+                  {video.title}. {video.source}. About {video.minutes} min. {video.license} Autoplay off.
+                </p>
+              </div>
+            )}
             <p className="section-label">Misconceptions</p>
             {pairs.map((m) => (
               <div key={m.claim} className="rounded-[10px] border border-fault/30 bg-fault/10 p-3">
@@ -70,11 +92,7 @@ export function WhyPanel({ lab }: { lab: LabMeta }) {
                 <ul className="space-y-1">
                   {lab.cases.map((c) => (
                     <li key={c.slug}>
-                      <Link
-                        to="/case/$slug"
-                        params={{ slug: c.slug }}
-                        className="text-ice hover:underline"
-                      >
+                      <Link to="/case/$slug" params={{ slug: c.slug }} className="text-ice hover:underline">
                         {c.label}
                       </Link>
                     </li>
@@ -101,12 +119,8 @@ export function WhyPanel({ lab }: { lab: LabMeta }) {
               if (tfig && show) seenTermSrc.add(tfig.src);
               return (
                 <div key={g.term}>
-                  <p className="font-medium text-chalk">
-                    {exam && g.exam ? g.exam : g.term}
-                  </p>
-                  {exam && g.exam && (
-                    <p className="font-mono text-[11px] text-mist">{g.term}</p>
-                  )}
+                  <p className="font-medium text-chalk">{exam && g.exam ? g.exam : g.term}</p>
+                  {exam && g.exam && <p className="font-mono text-[11px] text-mist">{g.term}</p>}
                   <p className="mt-1 text-mist">{g.def}</p>
                   {show && tfig && <Figure {...tfig} size="sm" />}
                 </div>
@@ -140,6 +154,13 @@ export function WhyPanel({ lab }: { lab: LabMeta }) {
                 </li>
               ))}
             </ul>
+            <Link
+              to="/teachers/$slug"
+              params={{ slug: lab.slug }}
+              className="inline-flex h-11 items-center text-ice hover:underline"
+            >
+              Open the full note
+            </Link>
           </div>
         )}
       </div>
@@ -148,10 +169,11 @@ export function WhyPanel({ lab }: { lab: LabMeta }) {
 }
 
 function CheckList({ lab }: { lab: LabMeta }) {
+  const qs = tenQuestions(lab);
   const [picked, setPicked] = useState<Record<number, number>>({});
   return (
     <div className="space-y-5">
-      {lab.questions.map((q, i) => {
+      {qs.map((q, i) => {
         const choice = picked[i];
         const shown = choice !== undefined;
         const ok = shown && choice === q.answer;

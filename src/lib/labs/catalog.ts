@@ -820,9 +820,9 @@ const CORE_LABS: LabMeta[] = [
     ],
         why: [
       "A GCSE map question is a hill wearing a disguise. The spur and the valley are the same lines, bending opposite ways. Walk a contour on Snowdonia and you neither climb nor descend. Yosemite’s valley walls pack the lines; the floor opens them. OS 1:25 000 and USGS quads both hide the hill in the interval. If a student counts lines instead of intervals they will misread every height question. North is not up the slope.",
-      "A contour joins equal height. Walk it and you neither climb nor descend. Packed lines: steep. Open lines: gentle. A V pointing upslope is a valley; a V pointing downslope is a spur. What moves in this lab: the interval slider, the 2D/3D flip. What does not: the hill. What is conserved: height along a line. Interval is the step between lines, not the line count. Spot heights and trig points are extras. The hill is invented teaching terrain, not a traced OS sheet. Vertical scale is readable, not a 1:1 mountain. The lie is the pretty slope; the skill is reading the disguise. Flip 2D to 3D and the same V must still be a valley.",
+      "A contour joins equal height. Walk it and you neither climb nor descend. Packed lines: steep. Open lines: gentle. A V pointing upslope is a valley; a V pointing downslope is a spur. What moves in this lab: the interval slider, the 2D/3D flip. What does not: the hill. What is conserved: height along a line. Interval is the step between lines, not the line count. Spot heights and trig points are extras. The hill is a schematic contour model, not a traced OS sheet. Vertical scale is readable, not a 1:1 mountain. The lie is the pretty slope; the skill is reading the disguise. Flip 2D to 3D and the same V must still be a valley.",
       "Start in 2D. Ask spur or valley on the marked V. Flip to 3D without telling them. Change interval from 5 m to 20 m and ask what disappeared. Keyboard: L labels, R reset, P projector. Students count intervals, not lines. North is not ‘up the slope’. Reset view if the hill has been orbited into a puzzle.",
-      "The hill is invented teaching terrain, not a traced OS sheet. Vertical scale is readable, not a 1:1 mountain. Without the 3D view: packed lines are steep, open lines are gentle, a V pointing upslope is a valley, a spur bends the other way. Count intervals, not lines. North is a grid, not the slope. That is enough for Check, and enough to sit an OS extract without the 3D crutch.",
+      "The hill is a schematic contour model, not a traced OS sheet. Vertical scale is readable, not a 1:1 mountain. Without the 3D view: packed lines are steep, open lines are gentle, a V pointing upslope is a valley, a spur bends the other way. Count intervals, not lines. North is a grid, not the slope. That is enough for Check, and enough to sit an OS extract without the 3D crutch.",
     ],
     glossary: [
       { term: "Contour", def: "Line joining points of equal height above datum." },
@@ -856,7 +856,7 @@ const CORE_LABS: LabMeta[] = [
     ],
     teacher: {
       script:
-        "Start in 2D. Ask spur or valley on the marked V. Wait.\nFlip to 3D without telling them. The hill should match the map.\nChange interval from 5 m to 20 m. Ask what disappeared.\nStudents count intervals, not lines.\nNorth is not ‘up the slope’.\nPacked lines are steep. Open lines are gentle.\nThis is teaching terrain, not a traced OS sheet. Say so.\nL labels. R reset. P projector.\nFinish in Check.",
+        "Start in 2D. Ask spur or valley on the marked V. Wait.\nFlip to 3D without telling them. The hill should match the map.\nChange interval from 5 m to 20 m. Ask what disappeared.\nStudents count intervals, not lines.\nNorth is not ‘up the slope’.\nPacked lines are steep. Open lines are gentle.\nThis is a schematic hill, not a traced OS sheet. Say so.\nL labels. R reset. P projector.\nFinish in Check.",
       pitfalls: [
         "Students counting lines instead of intervals.",
         "Assuming north is always ‘up the slope’.",
@@ -942,9 +942,9 @@ const CORE_LABS: LabMeta[] = [
     ],
         why: [
       "Somerset Levels and the Mississippi delta are flood stories on the same long profile. Channel management — dredge, levée, dam — is an argument with energy and sediment, not a personality of the river. Lake District upper courses cut V-valleys; the Thames lower course sits on a floodplain. US levées and UK washlands are the same machine with different politics. If a class thinks a river is a blue line of constant width they will fail every landform question from knickpoint to oxbow.",
-      "A river is a slope with water on it. Upper course: steep, vertical erosion, V-valley, knickpoints. Middle: meanders, helicoidal flow, erosion on the outer bend, deposition on the inner. Lower: floodplain, levées, then a delta or, in tidal UK, often an estuary. What moves: water and sediment. What does not: the long-profile idea of energy falling downstream. What is conserved: water as a budget, sediment until it is dropped. Discharge thickens the channel here; play cuts a neck toward an oxbow. The valley is a teaching mesh, not a traced catchment. Water is a thin free surface in that valley, not a fat pipe. Vertical exaggeration ×12 on the long profile. UK ‘deltas’ are often estuaries because of tides. Say so.",
+      "A river is a slope with water on it. Upper course: steep, vertical erosion, V-valley, knickpoints. Middle: meanders, helicoidal flow, erosion on the outer bend, deposition on the inner. Lower: floodplain, levées, then a delta or, in tidal UK, often an estuary. What moves: water and sediment. What does not: the long-profile idea of energy falling downstream. What is conserved: water as a budget, sediment until it is dropped. Discharge widens and deepens the channel here; play cuts a neck toward an oxbow. The valley is a schematic long profile, not a traced catchment. Vertical exaggeration ×12 on the long profile — T flattens it to a true gradient. UK ‘deltas’ are often estuaries because of tides. Say so.",
       "Walk source to mouth with labels off. Ask the class to name each station. Raise discharge and freeze on the floodplain. Play the oxbow once, then rewind. Keyboard: Space play, arrows, L labels, R reset, P projector. The discharge slider is the flood. Labels on only after they have named V-valley, knickpoint, meander, levée, delta.",
-      "The valley is a teaching mesh, not a traced catchment. Water is a thin surface, not a fat pipe. Without the 3D view: source, V-valley, knickpoint, meander, floodplain, levée, mouth. Energy falls downstream. UK mouths are often estuaries. Mississippi builds a delta. Discharge up, floodplain wet. Play cuts an oxbow. That is enough for Check on paper.",
+      "The valley is a schematic long profile, not a traced catchment. Without the 3D view: source, V-valley, knickpoint, meander, floodplain, levée, mouth. Energy falls downstream. UK mouths are often estuaries. Mississippi builds a delta. Discharge up, floodplain wet. Play cuts an oxbow. That is enough for Check on paper.",
     ],
     glossary: [
       { term: "Long profile", def: "Height of the bed from source to mouth." },
@@ -978,7 +978,7 @@ const CORE_LABS: LabMeta[] = [
     ],
     teacher: {
       script:
-        "Walk source to mouth with labels off. Name each station.\nV-valley and knickpoint upstream. Meanders in the middle. Floodplain and levée down.\nRaise discharge. Freeze on the floodplain.\nPlay the oxbow once, then rewind.\nUK ‘deltas’ are often estuaries because of tides. Say so.\nWater is a thin surface in a valley, not a fat pipe.\nSpace plays. Arrows scrub. P projector.\nFinish in Check.",
+        "Walk source to mouth with labels off. Name each station.\nV-valley and knickpoint upstream. Meanders in the middle. Floodplain and levée down.\nRaise discharge. Freeze on the floodplain.\nPlay the oxbow once, then rewind.\nUK ‘deltas’ are often estuaries because of tides. Say so.\nT flattens the ×12 long profile to a true gradient.\nSpace plays. Arrows scrub. P projector.\nFinish in Check.",
       pitfalls: [
         "Teaching the upper/middle/lower courses as three different rivers.",
         "Forgetting that UK ‘deltas’ are often estuaries because of tides.",

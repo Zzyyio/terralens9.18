@@ -1,0 +1,17 @@
+{
+  "name": "TerraLens",
+  "short_name": "TerraLens",
+  "id": "/",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "background_color": "#07090C",
+  "theme_color": "#07090C",
+  "icons": [
+    {
+      "src": "/icons/terralens-180.png",
+      "sizes": "180x180",
+      "type": "image/png"
+    }
+  ]
+}

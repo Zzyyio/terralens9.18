@@ -1,9 +1,19 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { headFor } from "@/lib/seo";
+import { headFor, learningResourceJsonLd, siteOrigin } from "@/lib/seo";
 import { LABS } from "@/lib/labs/catalog";
 import { LAB_SCENES } from "@/labs/registry";
 import { isListed } from "@/lib/labs/status";
 import { Figure } from "@/components/figure";
+import { CASES } from "@/lib/cases";
+import {
+  CONTACT_LINE,
+  PRODUCER_LINE,
+  PRODUCER_X,
+  PRODUCER_X_HANDLE,
+  SCHOOL_MAIL,
+  SCHOOL_NAME,
+  SCHOOL_URL,
+} from "@/lib/contact";
 
 export const Route = createFileRoute("/about")({
   component: About,
@@ -17,8 +27,16 @@ export const Route = createFileRoute("/about")({
 
 function About() {
   const n = LABS.filter((l) => LAB_SCENES[l.slug] && isListed(l.slug)).length;
+  const jsonLd = learningResourceJsonLd({
+    name: "TerraLens",
+    description: "Free 3D labs for geography and Earth science students.",
+    url: `${siteOrigin()}/about`,
+    type: "WebPage",
+    about: "Earth science education",
+  });
   return (
     <main id="main" className="mx-auto max-w-[720px] px-5 pb-24 pt-24">
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
       <p className="section-label">About</p>
       <h1 className="mt-3 font-display text-4xl text-chalk md:text-5xl">A free Earth studio.</h1>
       <div className="mt-8 space-y-5 text-[17px] leading-7 text-chalk/90">
@@ -35,19 +53,18 @@ function About() {
         />
         <p>
           After a lab, a student should be able to say the mechanism in their own words and recognise it on a
-          map or in the field. That is the whole product. {n} labs sit on the bench.
+          map or in the field. That is the whole product. {n} labs and {CASES.length} case studies sit on the
+          bench.
         </p>
         <p>
           Free forever. No paywall, no ads, no sponsorship banner, no login wall for content. International
           English. SI units first; US customary in parentheses where it helps. Colour and color, metre and
           meter, both accepted in copy.
         </p>
-        <p>
-          Not affiliated with Kongsberg Geospatial or any other TerraLens product.
-        </p>
+        <p>Not affiliated with Kongsberg Geospatial or any other TerraLens product.</p>
       </div>
 
-      <h2 className="mt-14 font-display text-2xl">Website Producer</h2>
+      <h2 className="mt-14 font-display text-2xl">Website producer</h2>
       <div className="mt-6 overflow-hidden rounded-2xl border border-white/10">
         <img
           src="/photos/li-zeyu-field.jpg"
@@ -56,9 +73,25 @@ function About() {
         />
         <p className="px-4 py-3 font-mono text-[11px] text-mist">Li Zeyu in the field.</p>
       </div>
-      <p className="mt-5 whitespace-pre-wrap text-[17px] leading-7 text-chalk/90">
-        Website Producer：Li Zeyu.  A Geoscience Lover. The President of Geoscience Club of Shanghai Pinghe School
+      <p className="mt-5 text-[17px] leading-7 text-chalk/90">{PRODUCER_LINE}</p>
+      <p className="mt-3 text-[15px] leading-7 text-mist">
+        网站制作：李泽宇，地球科学教育者；上海平和学校地质社社长。International English is the classroom language;
+        this line is the bilingual handshake, not a second site.
       </p>
+      <p className="mt-4 text-sm leading-6 text-mist">
+        <a href={SCHOOL_URL} className="text-ice hover:underline" target="_blank" rel="noreferrer">
+          {SCHOOL_NAME}
+        </a>
+        {" · "}
+        <a href={`mailto:${SCHOOL_MAIL}`} className="text-ice hover:underline">
+          {SCHOOL_MAIL}
+        </a>
+        {" · "}
+        <a href={PRODUCER_X} className="text-ice hover:underline" target="_blank" rel="noreferrer">
+          {PRODUCER_X_HANDLE}
+        </a>
+      </p>
+      <p className="mt-3 text-sm text-mist">{CONTACT_LINE}</p>
 
       <h2 className="mt-14 font-display text-2xl">Curriculum tags</h2>
       <p className="mt-4 text-mist">
@@ -68,9 +101,36 @@ function About() {
 
       <h2 className="mt-14 font-display text-2xl">Licence</h2>
       <p className="mt-4 text-mist">
-        Original lab models, copy, and diagrams: <strong className="text-chalk">CC BY-NC 4.0</strong>. Teachers
-        may project and print for class. Do not sell the models as a product. NASA Blue Marble imagery is
-        public domain. Cite USGS, BGS, NOAA, and the Met Office if you reuse numbers in a handout.
+        Original lab models, copy, and diagrams:{" "}
+        <a
+          href="https://creativecommons.org/licenses/by-nc/4.0/"
+          className="font-medium text-chalk hover:underline"
+          target="_blank"
+          rel="noreferrer"
+        >
+          CC BY-NC 4.0
+        </a>
+        . Teachers may project and print for class. Do not sell the models as a product.{" "}
+        <a href="https://www.nasa.gov/" className="text-ice hover:underline" target="_blank" rel="noreferrer">
+          NASA
+        </a>{" "}
+        Blue Marble imagery is public domain. Cite{" "}
+        <a href="https://www.usgs.gov/" className="text-ice hover:underline" target="_blank" rel="noreferrer">
+          USGS
+        </a>
+        ,{" "}
+        <a href="https://www.bgs.ac.uk/" className="text-ice hover:underline" target="_blank" rel="noreferrer">
+          BGS
+        </a>
+        ,{" "}
+        <a href="https://www.noaa.gov/" className="text-ice hover:underline" target="_blank" rel="noreferrer">
+          NOAA
+        </a>
+        , and the{" "}
+        <a href="https://www.metoffice.gov.uk/" className="text-ice hover:underline" target="_blank" rel="noreferrer">
+          Met Office
+        </a>{" "}
+        if you reuse numbers in a handout.
       </p>
 
       <h2 className="mt-14 font-display text-2xl">Sources</h2>
@@ -82,6 +142,7 @@ function About() {
         <li>Open-Meteo — educational live weather (not a forecast desk)</li>
         <li>Natural Earth — countries, states, coastlines</li>
         <li>OpenStreetMap / OpenFreeMap — locators and the atlas, never as a tracker</li>
+        <li>YouTube nocookie — in-site classroom films, autoplay off</li>
       </ul>
 
       <h2 className="mt-14 font-display text-2xl">Version</h2>

@@ -42,10 +42,14 @@ export function LabStudio({
   const setInspect = useLabControls((s) => s.setInspect);
   const q = useQuality();
 
-  if (!webgl) {
+  if (webgl === null) {
     return (
-      fallback ?? <GenericFallback slug={slug} title={title} caption={liveText} />
+      <div className="flex size-full items-center justify-center bg-void text-sm text-mist">Loading lab…</div>
     );
+  }
+
+  if (!webgl) {
+    return fallback ?? <GenericFallback slug={slug} title={title} caption={liveText} />;
   }
 
   return (

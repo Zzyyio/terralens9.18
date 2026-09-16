@@ -2,7 +2,8 @@ import { useEffect, useRef, useState } from "react";
 import {
   attachStyleFallback,
   FIORD,
-  OPEN_TOPO_TILES,
+  OSM_RASTER_STYLE,
+  OSM_RELIEF_STYLE,
   type MapBasemap,
 } from "@/lib/map-style";
 import { plateColor } from "@/lib/map-overlays";
@@ -30,8 +31,9 @@ export type Overlay = {
   ranked?: boolean;
   /** translucent halo, e.g. atlas selection */
   fill?: boolean;
-  /** named labels via OpenFreeMap glyphs */
   labels?: boolean;
+  /** overlay opacity 0–1 */
+  opacity?: number;
 };
 
 type MapHandle = {
@@ -60,6 +62,7 @@ const CREDIT: Record<MapBasemap, string> = {
   osm: "OpenStreetMap raster (fallback if vector tiles were silent)",
   carto: "OpenStreetMap data · CARTO Voyager (second fallback)",
   "natural-earth": "Natural Earth 110m land — offline fallback. Coastlines only.",
+  relief: "OpenTopoMap relief · OSM / SRTM. Tibet, rifts and trenches as height.",
 };
 
 function meridians(): { type: string; features: unknown[] } {
@@ -204,7 +207,7 @@ function applyOverlays(m: MapHandle, overlays: Overlay[], prev: string[], gratic
           paint: {
             "circle-radius": ["interpolate", ["linear"], ["zoom"], 2, 22, 5, 52, 8, 90],
             "circle-color": ov.color,
-            "circle-opacity": 0.22,
+            "circle-opacity": 0.22 * (ov.opacity ?? 1),
             "circle-stroke-color": ov.color,
             "circle-stroke-width": 2.2,
             "circle-stroke-opacity": 0.95,
@@ -226,6 +229,7 @@ function applyOverlays(m: MapHandle, overlays: Overlay[], prev: string[], gratic
               "#FF6A3D",
             ],
             "line-width": ["interpolate", ["linear"], ["zoom"], 1, 2.2, 4, ov.width ?? 2.8, 8, 4.2],
+            "line-opacity": ov.opacity ?? 1,
           },
         });
       } else if (ov.circle && ov.ranked) {
@@ -279,6 +283,7 @@ function applyOverlays(m: MapHandle, overlays: Overlay[], prev: string[], gratic
           paint: {
             "line-color": ov.color,
             "line-width": ["interpolate", ["linear"], ["zoom"], 1, 1.4, 4, ov.width ?? 2.2, 8, 3.6],
+            "line-opacity": ov.opacity ?? 1,
           },
         });
       }
@@ -316,39 +321,6 @@ function applyOverlays(m: MapHandle, overlays: Overlay[], prev: string[], gratic
   }
 }
 
-function setReliefLayer(m: MapHandle, on: boolean) {
-  try {
-    if (on) {
-      if (!m.getSource("relief")) {
-        m.addSource("relief", {
-          type: "raster",
-          tiles: OPEN_TOPO_TILES,
-          tileSize: 256,
-          maxzoom: 17,
-          attribution: "© OpenStreetMap contributors, SRTM · OpenTopoMap (CC-BY-SA)",
-        });
-      }
-      if (!m.getLayer?.("relief")) {
-        const before = m.getLayer?.("graticule") ? "graticule" : undefined;
-        m.addLayer(
-          {
-            id: "relief",
-            type: "raster",
-            source: "relief",
-            paint: { "raster-opacity": 0.9 },
-          },
-          before,
-        );
-      }
-    } else {
-      if (m.getLayer?.("relief")) m.removeLayer?.("relief");
-      if (m.getSource("relief")) m.removeSource?.("relief");
-    }
-  } catch {
-    /* style not ready */
-  }
-}
-
 export function LibreMap({
   center,
   zoom = 3,
@@ -356,6 +328,7 @@ export function LibreMap({
   relief = false,
   overlays = [],
   marker,
+  markerB,
   onClick,
   onFeature,
   className = "h-[28rem] w-full overflow-hidden rounded-2xl border border-white/10 bg-trench",
@@ -369,6 +342,7 @@ export function LibreMap({
   relief?: boolean;
   overlays?: Overlay[];
   marker?: [number, number] | null;
+  markerB?: [number, number] | null;
   onClick?: (c: MapClick) => void;
   onFeature?: (f: MapFeatureHit) => void;
   className?: string;
@@ -382,6 +356,10 @@ export function LibreMap({
     setLngLat: (p: [number, number]) => unknown;
     remove: () => void;
     getLngLat?: () => { lat: number; lng: number };
+  } | null>(null);
+  const markerBRef = useRef<{
+    setLngLat: (p: [number, number]) => unknown;
+    remove: () => void;
   } | null>(null);
   const clickRef = useRef(onClick);
   clickRef.current = onClick;
@@ -447,7 +425,6 @@ export function LibreMap({
           next.forEach((o) => {
             if (o.labels !== false && !o.fill) overlayIdsRef.current.push(`${o.id}-label`);
           });
-          setReliefLayer(m as unknown as MapHandle, reliefRef.current);
         };
         m.on("load", () => {
           m.resize();
@@ -497,6 +474,10 @@ export function LibreMap({
           }
           markerRef.current = mk;
         }
+        if (markerB) {
+          const mkB = new maplibregl.Marker({ color: "#FF6A3D" }).setLngLat(markerB).addTo(m);
+          markerBRef.current = mkB;
+        }
         const onKey = (ev: KeyboardEvent) => {
           if (ev.target instanceof HTMLInputElement || ev.target instanceof HTMLTextAreaElement) return;
           if (ev.key === "+" || ev.key === "=") m.zoomIn();
@@ -523,6 +504,8 @@ export function LibreMap({
       detach();
       markerRef.current?.remove();
       markerRef.current = null;
+      markerBRef.current?.remove();
+      markerBRef.current = null;
       mapRef.current?.remove();
       mapRef.current = null;
       overlayIdsRef.current = [];
@@ -530,15 +513,31 @@ export function LibreMap({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [styleUrl, draggableMarker]);
 
+  const reliefWas = useRef(false);
   useEffect(() => {
     const m = mapRef.current;
     if (!m) return;
+    if (relief && !reliefWas.current) {
+      try {
+        m.setStyle(OSM_RELIEF_STYLE);
+        setBasemap("relief");
+      } catch {
+        /* */
+      }
+    } else if (!relief && reliefWas.current) {
+      try {
+        m.setStyle(OSM_RASTER_STYLE);
+        setBasemap("osm");
+      } catch {
+        /* */
+      }
+    }
+    reliefWas.current = relief;
     applyOverlays(m, overlays, overlayIdsRef.current, graticule);
     overlayIdsRef.current = overlays.map((o) => o.id).concat(graticule ? ["graticule"] : []);
     overlays.forEach((o) => {
       if (o.labels !== false && !o.fill) overlayIdsRef.current.push(`${o.id}-label`);
     });
-    setReliefLayer(m, relief);
   }, [overlayKey, graticule, relief]);
 
   useEffect(() => {
@@ -550,12 +549,26 @@ export function LibreMap({
     markerRef.current.setLngLat(marker);
   }, [marker?.[0], marker?.[1]]);
 
-  const credit =
-    relief && basemap && basemap !== "natural-earth"
-      ? `${CREDIT[basemap]} · OpenTopoMap relief overlay`
-      : basemap
-        ? CREDIT[basemap]
-        : null;
+  useEffect(() => {
+    if (!markerB) {
+      markerBRef.current?.remove();
+      markerBRef.current = null;
+      return;
+    }
+    if (markerBRef.current) {
+      markerBRef.current.setLngLat(markerB);
+      return;
+    }
+    const m = mapRef.current;
+    if (!m) return;
+    void import("maplibre-gl").then((maplibregl) => {
+      if (!mapRef.current || markerBRef.current) return;
+      const mkB = new maplibregl.Marker({ color: "#FF6A3D" }).setLngLat(markerB).addTo(m as never);
+      markerBRef.current = mkB;
+    });
+  }, [markerB?.[0], markerB?.[1]]);
+
+  const credit = basemap ? CREDIT[basemap] : null;
 
   return (
     <div className="relative">

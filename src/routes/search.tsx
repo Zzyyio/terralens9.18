@@ -3,27 +3,46 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { LABS } from "@/lib/labs/catalog";
 import { LAB_SCENES } from "@/labs/registry";
 import { GLOSSARY } from "@/lib/glossary-data";
-import { CASES } from "@/lib/cases";
+import { ATLAS } from "@/lib/atlas-data";
 import { Button } from "@/components/ui/button";
 import { headFor } from "@/lib/seo";
 import { isListed } from "@/lib/labs/status";
+import { teacherArticle } from "@/lib/teachers/article";
+import { CASES } from "@/lib/cases";
+import { PATHS } from "@/lib/paths";
+import { expandSearchNeedle } from "@/lib/search-aliases";
 
 export const Route = createFileRoute("/search")({
   component: SearchPage,
   head: () =>
     headFor({
       title: "Search",
-      description: "Find a TerraLens lab, glossary term, or case study.",
+      description: "Find a TerraLens lab, glossary term, atlas place, tool, or teacher note.",
       path: "/search",
     }),
 });
 
 const SHIPPED = LABS.filter((l) => LAB_SCENES[l.slug] && isListed(l.slug));
 
+const TOOL_HITS = [
+  { to: "/tools/earth-motion" as const, title: "Earth-motion calculator", hay: "declination noon altitude sunrise day length tilt analemma seasons" },
+  { to: "/tools/live-weather" as const, title: "Live weather", hay: "open-meteo temperature wind gusts pressure precipitation humidity" },
+  { to: "/tools/map" as const, title: "World map studio", hay: "relief rivers plates koppen graticule holderness san andreas" },
+  { to: "/atlas" as const, title: "Atlas", hay: "countries uk nations us states japan iceland california hawaii hong kong shanghai taiwan macau 香港 上海" },
+];
+
+const POPULAR = [
+  { q: "seasons", label: "seasons" },
+  { q: "coasts", label: "coasts" },
+  { q: "Holderness", label: "Holderness" },
+  { q: "San Andreas", label: "San Andreas" },
+  { q: "季节", label: "季节" },
+] as const;
+
 function SearchPage() {
   const [q, setQ] = useState("");
   const inputRef = useRef<HTMLInputElement>(null);
-  const needle = q.trim().toLowerCase();
+  const needle = expandSearchNeedle(q);
 
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
@@ -39,9 +58,10 @@ function SearchPage() {
   }, []);
 
   const labs = useMemo(() => {
-    if (!needle) return SHIPPED;
-    return SHIPPED.filter((l) =>
-      [l.title, l.hook, l.objective, l.realm, ...l.curriculum, ...l.ages]
+    const pool = SHIPPED;
+    if (!needle) return pool.filter((l) => ["seasons", "coasts", "hydrograph"].includes(l.slug));
+    return pool.filter((l) =>
+      [l.title, l.hook, l.objective, l.realm, l.teacher.script, ...l.curriculum, ...l.ages, ...l.glossary.map((g) => g.term)]
         .join(" ")
         .toLowerCase()
         .includes(needle),
@@ -49,26 +69,61 @@ function SearchPage() {
   }, [needle]);
 
   const terms = useMemo(() => {
-    if (!needle) return GLOSSARY.slice(0, 12);
-    return GLOSSARY.filter((g) =>
-      `${g.term} ${g.def} ${g.exam ?? ""}`.toLowerCase().includes(needle),
-    );
+    if (!needle) return GLOSSARY.filter((g) => /spit|stack|cirque|hydrograph|terminator/i.test(g.term)).slice(0, 8);
+    return GLOSSARY.filter((g) => `${g.term} ${g.def} ${g.exam ?? ""}`.toLowerCase().includes(needle));
   }, [needle]);
 
-  const cases = useMemo(() => {
-    if (!needle) return CASES.slice(0, 8);
+  const places = useMemo(() => {
+    if (!needle) return ATLAS.filter((p) => /holderness|japan|iceland|california|hawaii/i.test(`${p.name} ${(p.alias ?? []).join(" ")}`));
+    return ATLAS.filter((p) =>
+      `${p.name} ${p.capital} ${p.hook} ${(p.alias ?? []).join(" ")} ${(p.geo ?? []).join(" ")}`.toLowerCase().includes(needle),
+    ).slice(0, 12);
+  }, [needle]);
+
+  const tools = useMemo(() => {
+    if (!needle) return TOOL_HITS;
+    return TOOL_HITS.filter((t) => `${t.title} ${t.hay}`.toLowerCase().includes(needle));
+  }, [needle]);
+
+  const notes = useMemo(() => {
+    const pool = SHIPPED.map((l) => ({ lab: l, article: teacherArticle(l) }));
+    if (!needle) return pool.filter((p) => ["seasons", "coasts", "earthquakes"].includes(p.lab.slug));
+    return pool
+      .filter((p) =>
+        `${p.article.title} ${p.article.kicker} ${p.article.sections.map((s) => s.paragraphs.join(" ")).join(" ")}`
+          .toLowerCase()
+          .includes(needle),
+      )
+      .slice(0, 10);
+  }, [needle]);
+
+  const caseHits = useMemo(() => {
+    if (!needle) return CASES.filter((c) => /holderness|san andreas|shanghai|hong kong/i.test(`${c.title} ${c.place}`));
     return CASES.filter((c) =>
-      `${c.title} ${c.place} ${c.lede} ${c.body.join(" ")}`.toLowerCase().includes(needle),
-    );
+      `${c.title} ${c.place} ${c.lede} ${c.body.join(" ")} ${c.region}`.toLowerCase().includes(needle),
+    ).slice(0, 8);
   }, [needle]);
 
-  const empty = needle.length > 0 && labs.length === 0 && terms.length === 0 && cases.length === 0;
+  const pathHits = useMemo(() => {
+    if (!needle) return PATHS.slice(0, 3);
+    return PATHS.filter((p) => `${p.title} ${p.blurb} ${p.board} ${p.kicker}`.toLowerCase().includes(needle));
+  }, [needle]);
+
+  const empty =
+    needle.length > 0 &&
+    labs.length === 0 &&
+    terms.length === 0 &&
+    places.length === 0 &&
+    tools.length === 0 &&
+    notes.length === 0 &&
+    caseHits.length === 0 &&
+    pathHits.length === 0;
 
   return (
     <main id="main" className="mx-auto max-w-[900px] px-5 pb-24 pt-24">
       <p className="section-label">Search</p>
       <h1 className="mt-3 font-display text-4xl text-chalk md:text-5xl">Find a lab, a word, a place.</h1>
-      <p className="mt-3 text-sm text-mist">Press / to focus. SI names and ordinary English both work.</p>
+      <p className="mt-3 text-sm text-mist">Press / to focus. SI names and ordinary English both work. Not a fifth product card.</p>
       <label className="relative mt-8 block">
         <span className="sr-only">Search TerraLens</span>
         <input
@@ -76,7 +131,7 @@ function SearchPage() {
           autoFocus
           value={q}
           onChange={(e) => setQ(e.target.value)}
-          placeholder="Seasons, Holderness, Coriolis…"
+          placeholder="Seasons, Holderness, Coriolis, San Andreas…"
           className="h-12 w-full rounded-[16px] border border-white/10 bg-white/6 px-4 pr-24 text-chalk placeholder:text-mist/70"
           suppressHydrationWarning
         />
@@ -94,10 +149,25 @@ function SearchPage() {
         )}
       </label>
 
+      {!needle && (
+        <div className="mt-5 flex flex-wrap gap-2">
+          {POPULAR.map((p) => (
+            <button
+              key={p.q}
+              type="button"
+              onClick={() => setQ(p.q)}
+              className="h-9 rounded-full border border-white/10 bg-white/6 px-3 text-sm text-chalk hover:bg-white/10"
+            >
+              {p.label}
+            </button>
+          ))}
+        </div>
+      )}
+
       {empty ? (
         <div className="mt-16 max-w-lg">
           <h2 className="font-display text-2xl">This coordinate is empty ocean.</h2>
-          <p className="mt-3 text-mist">Nothing on the chart matches that. Try a realm name, a landform, or a case.</p>
+          <p className="mt-3 text-mist">Nothing on the chart matches that. Try a realm name, a landform, or a place.</p>
           <Button asChild className="mt-6">
             <Link to="/explore">Explore labs</Link>
           </Button>
@@ -107,13 +177,9 @@ function SearchPage() {
           <section>
             <p className="section-label">Labs · {labs.length}</p>
             <ul className="mt-4 divide-y divide-white/10 border-y border-white/10">
-              {labs.map((l) => (
+              {labs.slice(0, 16).map((l) => (
                 <li key={l.slug}>
-                  <Link
-                    to="/lab/$slug"
-                    params={{ slug: l.slug }}
-                    className="flex flex-col gap-1 py-4 hover:text-glacier"
-                  >
+                  <Link to="/lab/$slug" params={{ slug: l.slug }} className="flex flex-col gap-1 py-4 hover:text-glacier">
                     <span className="font-display text-xl text-chalk">{l.title}</span>
                     <span className="text-sm text-mist">{l.hook}</span>
                   </Link>
@@ -122,12 +188,16 @@ function SearchPage() {
             </ul>
           </section>
           <section>
-            <p className="section-label">Glossary · {terms.length}</p>
+            <p className="section-label">Terms · {terms.length}</p>
             <ul className="mt-4 space-y-4">
-              {terms.map((g, i) => (
+              {terms.slice(0, 12).map((g, i) => (
                 <li key={`${g.term}-${g.lab}-${i}`}>
                   <p className="font-medium text-chalk">{g.term}</p>
                   <p className="text-sm text-mist">{g.def}</p>
+                  <Link to="/glossary" className="text-sm text-ice hover:underline">
+                    Glossary
+                  </Link>
+                  {" · "}
                   <Link to="/lab/$slug" params={{ slug: g.lab }} className="text-sm text-ice hover:underline">
                     {g.labTitle}
                   </Link>
@@ -136,13 +206,69 @@ function SearchPage() {
             </ul>
           </section>
           <section>
-            <p className="section-label">Cases · {cases.length}</p>
-            <ul className="mt-4 space-y-4">
-              {cases.map((c) => (
+            <p className="section-label">Places · {places.length}</p>
+            <ul className="mt-4 space-y-3">
+              {places.map((p) => (
+                <li key={p.id}>
+                  <Link to="/atlas" search={{ place: p.id }} className="hover:text-glacier">
+                    <p className="font-display text-xl text-chalk">{p.name}</p>
+                    <p className="text-sm text-mist">
+                      {p.capital !== "—" ? `Capital ${p.capital}. ` : ""}
+                      {p.hook}
+                    </p>
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          </section>
+          <section>
+            <p className="section-label">Case studies · {caseHits.length}</p>
+            <ul className="mt-4 space-y-2">
+              {caseHits.map((c) => (
                 <li key={c.slug}>
                   <Link to="/case/$slug" params={{ slug: c.slug }} className="hover:text-glacier">
                     <p className="font-display text-xl text-chalk">{c.title}</p>
-                    <p className="text-sm text-mist">{c.lede}</p>
+                    <p className="text-sm text-mist">
+                      {c.place} · {c.region}
+                    </p>
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          </section>
+          <section>
+            <p className="section-label">Paths · {pathHits.length}</p>
+            <ul className="mt-4 space-y-2">
+              {pathHits.map((p) => (
+                <li key={p.slug}>
+                  <Link to="/paths/$slug" params={{ slug: p.slug }} className="hover:text-glacier">
+                    <p className="font-display text-xl text-chalk">{p.title}</p>
+                    <p className="text-sm text-mist">{p.kicker}</p>
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          </section>
+          <section>
+            <p className="section-label">Tools · {tools.length}</p>
+            <ul className="mt-4 space-y-2">
+              {tools.map((t) => (
+                <li key={t.to}>
+                  <Link to={t.to} className="font-display text-xl text-chalk hover:text-glacier">
+                    {t.title}
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          </section>
+          <section>
+            <p className="section-label">Teacher notes · {notes.length}</p>
+            <ul className="mt-4 space-y-2">
+              {notes.map((n) => (
+                <li key={n.lab.slug}>
+                  <Link to="/teachers/$slug" params={{ slug: n.lab.slug }} className="hover:text-glacier">
+                    <p className="font-display text-xl text-chalk">{n.lab.title}</p>
+                    <p className="text-sm text-mist">{n.article.kicker}</p>
                   </Link>
                 </li>
               ))}

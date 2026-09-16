@@ -94,6 +94,18 @@ CANDIDATES: dict[str, list[str]] = {
         "https://commons.wikimedia.org/wiki/Special:FilePath/Intertropical_Convergence_Zone.jpg?width=960",
         "https://eoimages.gsfc.nasa.gov/images/imagerecords/57000/57747/africa_amo_2005193_lrg.jpg",
     ],
+    "trench.jpg": [
+        "https://commons.wikimedia.org/wiki/Special:FilePath/Mariana_Trench_map.png?width=960",
+        "https://commons.wikimedia.org/wiki/Special:FilePath/Challenger_Deep_location.png?width=960",
+        "https://commons.wikimedia.org/wiki/Special:FilePath/Japan_Trench.jpg?width=960",
+        "https://eoimages.gsfc.nasa.gov/images/imagerecords/79000/79791/japan_tmo_2011074_lrg.jpg",
+    ],
+    "hydrograph-chart.jpg": [
+        "https://commons.wikimedia.org/wiki/Special:FilePath/Hydrograph.png?width=960",
+        "https://commons.wikimedia.org/wiki/Special:FilePath/Example_hydrograph.jpg?width=960",
+        "https://commons.wikimedia.org/wiki/Special:FilePath/Storm_hydrograph.png?width=960",
+        "https://upload.wikimedia.org/wikipedia/commons/8/80/Hydrograph.png",
+    ],
 }
 
 

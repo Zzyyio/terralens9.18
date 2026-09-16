@@ -4,7 +4,7 @@ import { LibreMap, type MapFeatureHit } from "@/components/map/libre-map";
 import { KOPPEN, PLATES, PLATE_LEGEND, RIVERS, SEARCH_POI, SETTLEMENTS } from "@/lib/map-overlays";
 import { ATLAS, atlasGeo, atlasKindLabel, nearestAtlasPlace } from "@/lib/atlas-data";
 import { cn } from "@/lib/utils";
-import { fmtLatLon } from "@/lib/geo";
+import { fmtLatLon, haversineKm } from "@/lib/geo";
 import { headFor } from "@/lib/seo";
 
 export const Route = createFileRoute("/tools/map")({
@@ -24,8 +24,11 @@ const PRESETS = [
   { name: "Sydney", lat: -33.87, lon: 151.21, zoom: 6 },
   { name: "Tokyo", lat: 35.68, lon: 139.69, zoom: 6 },
   { name: "Reykjavík", lat: 64.15, lon: -21.94, zoom: 6 },
-  { name: "Kathmandu", lat: 27.72, lon: 85.32, zoom: 6 },
-  { name: "San Francisco", lat: 37.77, lon: -122.42, zoom: 7 },
+  { name: "Cairo", lat: 30.04, lon: 31.24, zoom: 6 },
+  { name: "Shanghai", lat: 31.23, lon: 121.47, zoom: 6 },
+  { name: "Hong Kong", lat: 22.3, lon: 114.17, zoom: 9 },
+  { name: "Taipei", lat: 25.03, lon: 121.57, zoom: 8 },
+  { name: "Singapore", lat: 1.35, lon: 103.82, zoom: 6 },
 ] as const;
 
 function MapStudio() {
@@ -39,6 +42,10 @@ function MapStudio() {
   const [zoom, setZoom] = useState(2);
   const [q, setQ] = useState("");
   const [hit, setHit] = useState<MapFeatureHit | null>(null);
+  const [opacity, setOpacity] = useState(1);
+  const [measure, setMeasure] = useState<{ a?: { lat: number; lon: number }; b?: { lat: number; lon: number } }>({});
+  const [measuring, setMeasuring] = useState(false);
+  const [projector, setProjector] = useState(false);
   const [land, setLand] = useState<{
     lat: number;
     lon: number;
@@ -56,13 +63,14 @@ function MapStudio() {
       width?: number;
       plates?: boolean;
       ranked?: boolean;
+      opacity?: number;
     }[] = [];
-    if (rivers) o.push({ id: "rivers", data: RIVERS, color: "#7FD4FF", width: 2.2 });
-    if (plates) o.push({ id: "plates", data: PLATES, color: "#FF6A3D", width: 2.8, plates: true });
-    if (settlements) o.push({ id: "towns", data: SETTLEMENTS, color: "#E8B86D", circle: true, ranked: true });
-    if (climate) o.push({ id: "koppen", data: KOPPEN, color: "#3EE0C6", circle: true });
+    if (rivers) o.push({ id: "rivers", data: RIVERS, color: "#7FD4FF", width: 2.2, opacity });
+    if (plates) o.push({ id: "plates", data: PLATES, color: "#FF6A3D", width: 2.8, plates: true, opacity });
+    if (settlements) o.push({ id: "towns", data: SETTLEMENTS, color: "#E8B86D", circle: true, ranked: true, opacity });
+    if (climate) o.push({ id: "koppen", data: KOPPEN, color: "#3EE0C6", circle: true, opacity });
     return o;
-  }, [rivers, settlements, plates, climate]);
+  }, [rivers, settlements, plates, climate, opacity]);
 
   const searchHits = useMemo(() => {
     const needle = q.trim().toLowerCase();
@@ -122,6 +130,21 @@ function MapStudio() {
         <Toggle on={plates} set={setPlates} label="Plate boundaries" />
         <Toggle on={climate} set={setClimate} label="Köppen samples" />
         <Toggle on={graticule} set={setGraticule} label="Graticule" />
+        <Toggle on={measuring} set={setMeasuring} label="Measure km" />
+        <Toggle on={projector} set={setProjector} label="Projector" />
+        <button
+          type="button"
+          onClick={() => {
+            const u = new URL(window.location.href);
+            u.searchParams.set("lat", String(center[1]));
+            u.searchParams.set("lon", String(center[0]));
+            u.searchParams.set("z", String(zoom));
+            void navigator.clipboard.writeText(u.toString()).catch(() => undefined);
+          }}
+          className="h-9 rounded-full border border-white/10 px-3.5 text-sm text-mist hover:text-chalk"
+        >
+          Copy view link
+        </button>
         <button
           type="button"
           onClick={() => {
@@ -148,6 +171,20 @@ function MapStudio() {
           </button>
         ))}
       </div>
+
+      <label className="mt-4 flex max-w-xs items-center gap-3 text-sm text-mist">
+        Overlay opacity
+        <input
+          type="range"
+          min={0.25}
+          max={1}
+          step={0.05}
+          value={opacity}
+          onChange={(e) => setOpacity(Number(e.target.value))}
+          className="flex-1 accent-glacier"
+        />
+        <span className="font-mono text-[11px]">{Math.round(opacity * 100)}%</span>
+      </label>
 
       <label className="relative mt-4 block max-w-md">
         <span className="sr-only">Search places</span>
@@ -196,6 +233,10 @@ function MapStudio() {
             });
           }}
           onClick={(c) => {
+            if (measuring) {
+              setMeasure((m) => (m.a && !m.b ? { ...m, b: c } : { a: c }));
+              return;
+            }
             const near = nearestAtlasPlace(c.lat, c.lon);
             setLand({
               lat: c.lat,
@@ -205,7 +246,10 @@ function MapStudio() {
               kind: near ? atlasKindLabel(near.kind) : "Locator",
             });
           }}
-          className="h-[min(72vh,42rem)] w-full overflow-hidden rounded-2xl border border-white/10 bg-trench"
+          className={cn(
+            "h-[min(72vh,42rem)] w-full overflow-hidden rounded-2xl border border-white/10 bg-trench",
+            projector && "contrast-125",
+          )}
           label="World map studio"
         />
       </div>
@@ -213,10 +257,20 @@ function MapStudio() {
       {plates && (
         <ul className="mt-4 flex flex-wrap gap-3 font-mono text-[11px] text-mist">
           {PLATE_LEGEND.map((l) => (
-            <li key={l.kind} className="inline-flex items-center gap-2">
-              <span className="inline-block h-1.5 w-8 rounded-full" style={{ background: l.color }} />
-              <span className="text-chalk">{l.label}</span>
-              <span>{l.note}</span>
+            <li key={l.kind}>
+              <button
+                type="button"
+                className="inline-flex items-center gap-2 rounded-full border border-white/10 px-3 py-1.5 hover:border-glacier/40 hover:text-chalk"
+                onClick={() => {
+                  if (l.kind === "divergent") go(64.15, -21.94, 4, "Divergent · Iceland", l.note);
+                  else if (l.kind === "convergent") go(35.68, 139.65, 4, "Convergent · Japan", l.note);
+                  else go(36.0, -120.5, 5, "Transform · San Andreas", l.note);
+                }}
+              >
+                <span className="inline-block h-1.5 w-8 rounded-full" style={{ background: l.color }} />
+                <span className="text-chalk">{l.label}</span>
+                <span>{l.note}</span>
+              </button>
             </li>
           ))}
         </ul>
@@ -232,6 +286,13 @@ function MapStudio() {
         </ul>
       )}
 
+      {measure.a && measure.b && (
+        <p className="mt-4 font-mono text-sm text-glacier">
+          Distance {haversineKm(measure.a.lat, measure.a.lon, measure.b.lat, measure.b.lon).toFixed(0)} km
+          {" · "}
+          {fmtLatLon(measure.a.lat, measure.a.lon)} → {fmtLatLon(measure.b.lat, measure.b.lon)}
+        </p>
+      )}
       {land && (
         <div className="mt-5 rounded-2xl border border-white/10 bg-white/[0.04] p-5">
           <p className="font-mono text-[11px] uppercase tracking-[0.14em] text-glacier">

@@ -1,5 +1,5 @@
 import { i as __toESM } from "../_runtime.mjs";
-import { l as createStore } from "./@react-three/drei+[...].mjs";
+import { d as createStore } from "./@react-three/drei+[...].mjs";
 import { n as require_react } from "./@radix-ui/react-compose-refs+[...].mjs";
 //#region node_modules/zustand/esm/react.mjs
 var import_react = /* @__PURE__ */ __toESM(require_react(), 1);

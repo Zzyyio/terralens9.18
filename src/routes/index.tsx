@@ -1,11 +1,13 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { HeroEarth } from "@/components/globe/hero-earth";
+import { HomeHero } from "@/components/globe/home-hero";
 import { Button } from "@/components/ui/button";
 import { LabCard } from "@/components/lab-card";
 import { LABS, REALMS, labsInRealm } from "@/lib/labs/catalog";
 import { LAB_SCENES } from "@/labs/registry";
 import { isListed, labStatus } from "@/lib/labs/status";
 import { headFor } from "@/lib/seo";
+import { CASES } from "@/lib/cases";
+import { PATHS } from "@/lib/paths";
 
 export const Route = createFileRoute("/")({
   component: Home,
@@ -28,9 +30,9 @@ function Home() {
   return (
     <main id="main">
       <section className="relative h-dvh min-h-[40rem] overflow-hidden">
-        <HeroEarth />
+        <HomeHero />
         <div className="pointer-events-none absolute inset-0 bg-gradient-to-r from-void via-void/70 to-transparent" />
-        <div className="relative z-10 mx-auto flex h-full max-w-[1280px] flex-col justify-end px-5 pb-16 pt-24 md:justify-center md:pb-0">
+        <div className="pointer-events-none relative z-10 mx-auto flex h-full max-w-[1280px] flex-col justify-end px-5 pb-16 pt-24 md:justify-center md:pb-0">
           <p className="section-label">Geoscience studio</p>
           <h1 className="mt-4 max-w-xl font-display text-[clamp(2.5rem,8vw,4.5rem)] leading-[1.05] text-chalk">
             See how the Earth works.
@@ -52,6 +54,9 @@ function Home() {
           <div className="pointer-events-auto mt-4 flex flex-wrap gap-x-4 gap-y-1 text-sm text-mist">
             <Link to="/glossary" className="hover:text-glacier">
               Glossary
+            </Link>
+            <Link to="/paths" className="hover:text-glacier">
+              Paths
             </Link>
             <Link to="/about" className="hover:text-glacier">
               About
@@ -110,7 +115,8 @@ function Home() {
             <p className="section-label">Classroom</p>
             <h2 className="mt-3 font-display text-3xl text-chalk">Fifteen minutes. Projector on.</h2>
             <p className="mt-3 max-w-md text-mist">
-              Space plays. Arrows scrub time. L labels. R reset. F fullscreen. P projector. No login.
+              Space plays. Arrows scrub time. L labels. R reset. F fullscreen. P projector. T true scale.
+              Press ? for the key list. No login.
             </p>
             <Button asChild className="mt-6" variant="secondary">
               <Link to="/teachers">Teacher scripts</Link>
@@ -119,11 +125,16 @@ function Home() {
           <div>
             <p className="section-label">On the bench</p>
             <p className="mt-4 font-mono text-sm text-glacier">
-              {nLabs} labs · {nReady} ready for a full lesson
+              {nLabs} labs · {CASES.length} cases · {PATHS.length} paths · {nReady} ready for a full lesson
             </p>
             <p className="mt-6 max-w-md text-sm leading-6 text-mist">
               International English. SI units first. Keyboard for every 3D control. No login, no ads, no
               paywall. Free for students and teachers. Always.
+            </p>
+            <p className="mt-4">
+              <Link to="/explore" className="text-sm text-ice hover:underline">
+                Explore labs and cases
+              </Link>
             </p>
           </div>
         </div>

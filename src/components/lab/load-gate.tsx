@@ -3,7 +3,7 @@ import { Play } from "lucide-react";
 import { LabThumb } from "@/components/lab-thumb";
 import { useLabControls } from "@/lib/store/lab-controls";
 
-export function LabLoadFallback({ title }: { title: string }) {
+export function LabLoadFallback({ slug, title }: { slug: string; title: string }) {
   const [timedOut, setTimedOut] = useState(false);
   const play = useLabControls((s) => s.play);
 
@@ -24,7 +24,7 @@ export function LabLoadFallback({ title }: { title: string }) {
     <div className="flex h-full min-h-[42vh] flex-col items-center justify-center bg-void px-6">
       <div className="w-full max-w-md overflow-hidden rounded-2xl border border-white/10">
         <div className="aspect-[16/10] bg-trench">
-          <LabThumb slug="seasons" />
+          <LabThumb slug={slug} />
         </div>
       </div>
       <p className="mt-4 max-w-sm text-center text-sm text-mist">
@@ -68,8 +68,8 @@ export function CanvasTimeoutPoster({
           </div>
         </div>
         <p className="mt-4 max-w-sm text-center text-sm text-mist">
-          WebGL is slow or missing. The still is the 2D fallback. Play retries the bench; Check and Why still
-          work.
+          2D fallback · WebGL unavailable or slow. The still is the lesson. Play retries the bench; Check and
+          Why still work.
         </p>
         <button
           type="button"

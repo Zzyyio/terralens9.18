@@ -1,7 +1,6 @@
 import { Link } from "@tanstack/react-router";
 import { useEffect } from "react";
 import { Button } from "@/components/ui/button";
-import { HeroEarth } from "@/components/globe/hero-earth";
 import { pageTitle } from "@/lib/seo";
 
 export function NotFoundPage() {
@@ -10,8 +9,13 @@ export function NotFoundPage() {
   }, []);
   return (
     <main id="main" className="relative flex min-h-dvh items-center px-6 pt-14">
-      <div className="pointer-events-none absolute inset-0 opacity-50">
-        <HeroEarth />
+      <div className="pointer-events-none absolute inset-0">
+        <img
+          src="/textures/earth-day.jpg"
+          alt="Earth from space: the sunlit Blue Marble behind empty ocean."
+          className="size-full object-cover opacity-30"
+        />
+        <div className="absolute inset-0 bg-gradient-to-r from-void via-void/80 to-void/40" />
       </div>
       <div className="relative z-10 mx-auto max-w-lg py-24">
         <p className="section-label">404</p>

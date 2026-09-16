@@ -24,6 +24,8 @@ import { Route as LabSlugRouteImport } from './routes/lab.$slug'
 import { Route as PathsIndexRouteImport } from './routes/paths.index'
 import { Route as PathsSlugRouteImport } from './routes/paths.$slug'
 import { Route as RealmsRealmRouteImport } from './routes/realms.$realm'
+import { Route as TeachersIndexRouteImport } from './routes/teachers.index'
+import { Route as TeachersSlugRouteImport } from './routes/teachers.$slug'
 import { Route as ToolsIndexRouteImport } from './routes/tools.index'
 import { Route as ToolsAtlasRouteImport } from './routes/tools.atlas'
 import { Route as ToolsEarthMotionRouteImport } from './routes/tools.earth-motion'
@@ -107,6 +109,16 @@ const RealmsRealmRoute = RealmsRealmRouteImport.update({
   path: '/realms/$realm',
   getParentRoute: () => rootRouteImport,
 } as any)
+const TeachersIndexRoute = TeachersIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => TeachersRoute,
+} as any)
+const TeachersSlugRoute = TeachersSlugRouteImport.update({
+  id: '/$slug',
+  path: '/$slug',
+  getParentRoute: () => TeachersRoute,
+} as any)
 const ToolsIndexRoute = ToolsIndexRouteImport.update({
   id: '/tools/',
   path: '/tools/',
@@ -153,11 +165,12 @@ export interface FileRoutesByFullPath {
   '/privacy': typeof PrivacyRoute
   '/search': typeof SearchRoute
   '/skills': typeof SkillsRoute
-  '/teachers': typeof TeachersRoute
+  '/teachers': typeof TeachersRouteWithChildren
   '/case/$slug': typeof CaseSlugRoute
   '/lab/$slug': typeof LabSlugRoute
   '/paths/$slug': typeof PathsSlugRoute
   '/realms/$realm': typeof RealmsRealmRoute
+  '/teachers/$slug': typeof TeachersSlugRoute
   '/tools/atlas': typeof ToolsAtlasRoute
   '/tools/earth-motion': typeof ToolsEarthMotionRoute
   '/tools/live-weather': typeof ToolsLiveWeatherRoute
@@ -165,6 +178,7 @@ export interface FileRoutesByFullPath {
   '/tools/weather': typeof ToolsWeatherRoute
   '/topic/$slug': typeof TopicSlugRoute
   '/paths/': typeof PathsIndexRoute
+  '/teachers/': typeof TeachersIndexRoute
   '/tools/': typeof ToolsIndexRoute
 }
 export interface FileRoutesByTo {
@@ -177,11 +191,11 @@ export interface FileRoutesByTo {
   '/privacy': typeof PrivacyRoute
   '/search': typeof SearchRoute
   '/skills': typeof SkillsRoute
-  '/teachers': typeof TeachersRoute
   '/case/$slug': typeof CaseSlugRoute
   '/lab/$slug': typeof LabSlugRoute
   '/paths/$slug': typeof PathsSlugRoute
   '/realms/$realm': typeof RealmsRealmRoute
+  '/teachers/$slug': typeof TeachersSlugRoute
   '/tools/atlas': typeof ToolsAtlasRoute
   '/tools/earth-motion': typeof ToolsEarthMotionRoute
   '/tools/live-weather': typeof ToolsLiveWeatherRoute
@@ -189,6 +203,7 @@ export interface FileRoutesByTo {
   '/tools/weather': typeof ToolsWeatherRoute
   '/topic/$slug': typeof TopicSlugRoute
   '/paths': typeof PathsIndexRoute
+  '/teachers': typeof TeachersIndexRoute
   '/tools': typeof ToolsIndexRoute
 }
 export interface FileRoutesById {
@@ -202,11 +217,12 @@ export interface FileRoutesById {
   '/privacy': typeof PrivacyRoute
   '/search': typeof SearchRoute
   '/skills': typeof SkillsRoute
-  '/teachers': typeof TeachersRoute
+  '/teachers': typeof TeachersRouteWithChildren
   '/case/$slug': typeof CaseSlugRoute
   '/lab/$slug': typeof LabSlugRoute
   '/paths/$slug': typeof PathsSlugRoute
   '/realms/$realm': typeof RealmsRealmRoute
+  '/teachers/$slug': typeof TeachersSlugRoute
   '/tools/atlas': typeof ToolsAtlasRoute
   '/tools/earth-motion': typeof ToolsEarthMotionRoute
   '/tools/live-weather': typeof ToolsLiveWeatherRoute
@@ -214,6 +230,7 @@ export interface FileRoutesById {
   '/tools/weather': typeof ToolsWeatherRoute
   '/topic/$slug': typeof TopicSlugRoute
   '/paths/': typeof PathsIndexRoute
+  '/teachers/': typeof TeachersIndexRoute
   '/tools/': typeof ToolsIndexRoute
 }
 export interface FileRouteTypes {
@@ -233,6 +250,7 @@ export interface FileRouteTypes {
     | '/lab/$slug'
     | '/paths/$slug'
     | '/realms/$realm'
+    | '/teachers/$slug'
     | '/tools/atlas'
     | '/tools/earth-motion'
     | '/tools/live-weather'
@@ -240,6 +258,7 @@ export interface FileRouteTypes {
     | '/tools/weather'
     | '/topic/$slug'
     | '/paths/'
+    | '/teachers/'
     | '/tools/'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -252,11 +271,11 @@ export interface FileRouteTypes {
     | '/privacy'
     | '/search'
     | '/skills'
-    | '/teachers'
     | '/case/$slug'
     | '/lab/$slug'
     | '/paths/$slug'
     | '/realms/$realm'
+    | '/teachers/$slug'
     | '/tools/atlas'
     | '/tools/earth-motion'
     | '/tools/live-weather'
@@ -264,6 +283,7 @@ export interface FileRouteTypes {
     | '/tools/weather'
     | '/topic/$slug'
     | '/paths'
+    | '/teachers'
     | '/tools'
   id:
     | '__root__'
@@ -281,6 +301,7 @@ export interface FileRouteTypes {
     | '/lab/$slug'
     | '/paths/$slug'
     | '/realms/$realm'
+    | '/teachers/$slug'
     | '/tools/atlas'
     | '/tools/earth-motion'
     | '/tools/live-weather'
@@ -288,6 +309,7 @@ export interface FileRouteTypes {
     | '/tools/weather'
     | '/topic/$slug'
     | '/paths/'
+    | '/teachers/'
     | '/tools/'
   fileRoutesById: FileRoutesById
 }
@@ -301,7 +323,7 @@ export interface RootRouteChildren {
   PrivacyRoute: typeof PrivacyRoute
   SearchRoute: typeof SearchRoute
   SkillsRoute: typeof SkillsRoute
-  TeachersRoute: typeof TeachersRoute
+  TeachersRoute: typeof TeachersRouteWithChildren
   CaseSlugRoute: typeof CaseSlugRoute
   LabSlugRoute: typeof LabSlugRoute
   PathsSlugRoute: typeof PathsSlugRoute
@@ -423,6 +445,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof RealmsRealmRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/teachers/': {
+      id: '/teachers/'
+      path: '/'
+      fullPath: '/teachers/'
+      preLoaderRoute: typeof TeachersIndexRouteImport
+      parentRoute: typeof TeachersRoute
+    }
+    '/teachers/$slug': {
+      id: '/teachers/$slug'
+      path: '/$slug'
+      fullPath: '/teachers/$slug'
+      preLoaderRoute: typeof TeachersSlugRouteImport
+      parentRoute: typeof TeachersRoute
+    }
     '/tools/': {
       id: '/tools/'
       path: '/tools'
@@ -475,6 +511,20 @@ declare module '@tanstack/react-router' {
   }
 }
 
+interface TeachersRouteChildren {
+  TeachersSlugRoute: typeof TeachersSlugRoute
+  TeachersIndexRoute: typeof TeachersIndexRoute
+}
+
+const TeachersRouteChildren: TeachersRouteChildren = {
+  TeachersSlugRoute: TeachersSlugRoute,
+  TeachersIndexRoute: TeachersIndexRoute,
+}
+
+const TeachersRouteWithChildren = TeachersRoute._addFileChildren(
+  TeachersRouteChildren,
+)
+
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   SplatRoute: SplatRoute,
@@ -485,7 +535,7 @@ const rootRouteChildren: RootRouteChildren = {
   PrivacyRoute: PrivacyRoute,
   SearchRoute: SearchRoute,
   SkillsRoute: SkillsRoute,
-  TeachersRoute: TeachersRoute,
+  TeachersRoute: TeachersRouteWithChildren,
   CaseSlugRoute: CaseSlugRoute,
   LabSlugRoute: LabSlugRoute,
   PathsSlugRoute: PathsSlugRoute,

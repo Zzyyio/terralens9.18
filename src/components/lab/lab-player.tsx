@@ -1,5 +1,4 @@
 import { useEffect, useRef, useState, type ReactNode } from "react";
-import { Link } from "@tanstack/react-router";
 import type { LabMeta } from "@/lib/labs/types";
 import { defaultParams } from "@/lib/labs/defaults";
 import { useLabControls } from "@/lib/store/lab-controls";
@@ -9,6 +8,18 @@ import { WhyPanel } from "./why-panel";
 import { ControlBar } from "./control-bar";
 import { useIsCompact } from "@/hooks/use-media";
 import { labShareUrl, applyLabUrl, useLabUrlSync } from "@/labs/shared/url-state";
+
+const KEYS: { key: string; does: string }[] = [
+  { key: "Space", does: "Play / pause" },
+  { key: "← →", does: "Scrub time" },
+  { key: "L", does: "Labels" },
+  { key: "R", does: "Reset" },
+  { key: "F", does: "Fullscreen" },
+  { key: "P", does: "Projector" },
+  { key: "T", does: "True scale" },
+  { key: "Click", does: "Inspect a named part" },
+  { key: "?", does: "This list" },
+];
 
 export function LabPlayer({ lab, scene }: { lab: LabMeta; scene: ReactNode }) {
   const hydrate = useLabControls((s) => s.hydrate);
@@ -31,6 +42,7 @@ export function LabPlayer({ lab, scene }: { lab: LabMeta; scene: ReactNode }) {
   const root = useRef<HTMLDivElement>(null);
   const [fs, setFs] = useState(false);
   const [drawer, setDrawer] = useState<"steps" | "why" | null>(null);
+  const [keysOpen, setKeysOpen] = useState(false);
   const projector = layout === "projector" && !compact;
   useLabUrlSync();
 
@@ -46,6 +58,15 @@ export function LabPlayer({ lab, scene }: { lab: LabMeta; scene: ReactNode }) {
     const onKey = (e: KeyboardEvent) => {
       const tag = (e.target as HTMLElement | null)?.tagName;
       if (tag === "INPUT" || tag === "TEXTAREA") return;
+      if (e.key === "?" || (e.shiftKey && e.key === "/")) {
+        e.preventDefault();
+        setKeysOpen((v) => !v);
+        return;
+      }
+      if (e.key === "Escape") {
+        setKeysOpen(false);
+        return;
+      }
       if (e.code === "Space") {
         e.preventDefault();
         toggle();
@@ -83,6 +104,30 @@ export function LabPlayer({ lab, scene }: { lab: LabMeta; scene: ReactNode }) {
       setFs(false);
     }
   }
+
+  const extraKeys = [
+    ...(lab.controls.explode ? [{ key: "E", does: "Explode" }] : []),
+    ...(lab.controls.slice ? [{ key: "X", does: "Slice" }] : []),
+  ];
+
+  const keysPanel = keysOpen && (
+    <div className="pointer-events-auto absolute bottom-24 left-1/2 z-30 w-[min(22rem,calc(100%-2rem))] -translate-x-1/2 rounded-2xl border border-white/10 bg-basalt/95 p-4 backdrop-blur-xl">
+      <div className="flex items-center justify-between">
+        <p className="section-label">Keys</p>
+        <button type="button" className="text-sm text-mist hover:text-chalk" onClick={() => setKeysOpen(false)}>
+          Close
+        </button>
+      </div>
+      <ul className="mt-3 space-y-1.5 font-mono text-[12px] text-chalk">
+        {[...KEYS, ...extraKeys].map((row) => (
+          <li key={row.key} className="flex justify-between gap-4">
+            <span className="text-glacier">{row.key}</span>
+            <span className="text-mist">{row.does}</span>
+          </li>
+        ))}
+      </ul>
+    </div>
+  );
 
   const titleBlock = (
     <div className={projector ? "max-w-3xl" : "max-w-xl"}>
@@ -127,6 +172,10 @@ export function LabPlayer({ lab, scene }: { lab: LabMeta; scene: ReactNode }) {
             >
               Copy this lab’s link
             </button>
+            {" · "}
+            <button type="button" className="text-glacier underline" onClick={() => setKeysOpen((v) => !v)}>
+              Keys
+            </button>
           </p>
           <div className="grid gap-3 p-3 sm:grid-cols-2">
             <StepRail lab={lab} />
@@ -136,6 +185,7 @@ export function LabPlayer({ lab, scene }: { lab: LabMeta; scene: ReactNode }) {
             <ControlBar lab={lab} fullscreen={fs} onToggleFullscreen={() => void toggleFs()} />
           </div>
         </div>
+        {keysPanel}
       </div>
     );
   }
@@ -196,11 +246,16 @@ export function LabPlayer({ lab, scene }: { lab: LabMeta; scene: ReactNode }) {
         <ControlBar lab={lab} fullscreen={fs} onToggleFullscreen={() => void toggleFs()} />
       </div>
 
-      <p className="pointer-events-none absolute bottom-[4.6rem] left-1/2 z-10 hidden -translate-x-1/2 font-mono text-[10px] text-mist/80 xl:block">
-        Space play · arrows time · L labels · R reset · F fullscreen · P projector · T true scale · click a label
-        {lab.controls.explode ? " · E explode" : ""}
-        {lab.controls.slice ? " · X slice" : ""}
-      </p>
+      <button
+        type="button"
+        onClick={() => setKeysOpen((v) => !v)}
+        className="pointer-events-auto absolute bottom-[4.6rem] left-1/2 z-20 hidden h-11 min-w-11 -translate-x-1/2 items-center justify-center rounded-full border border-white/10 bg-basalt/80 px-3 font-mono text-[12px] text-mist hover:text-chalk xl:flex"
+        aria-label="Keyboard shortcuts"
+      >
+        ?
+      </button>
+
+      {keysPanel}
     </div>
   );
 }

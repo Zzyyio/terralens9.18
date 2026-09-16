@@ -2,7 +2,7 @@ import { useTexture } from "@react-three/drei";
 import { useFrame } from "@react-three/fiber";
 import { useMemo, useRef } from "react";
 import * as THREE from "three";
-import { latLonToVector3 } from "@/lib/geo";
+import { latLonToXYZ } from "@/lib/geo";
 import { useCloudMap } from "@/labs/shared/materials";
 import { useQuality } from "@/labs/shared/perf";
 
@@ -206,7 +206,7 @@ export function CityMarker({
   radius?: number;
   color?: string;
 }) {
-  const pos = useMemo(() => latLonToVector3(lat, lon, radius), [lat, lon, radius]);
+  const pos = useMemo(() => latLonToXYZ(lat, lon, radius), [lat, lon, radius]);
   return (
     <mesh position={pos}>
       <sphereGeometry args={[0.016, 12, 12]} />
@@ -220,14 +220,14 @@ export function Graticule({ radius = 1.004 }: { radius?: number }) {
     const pts: THREE.Vector3[] = [];
     for (let lat = -60; lat <= 60; lat += 30) {
       for (let lon = -180; lon < 180; lon += 3) {
-        pts.push(latLonToVector3(lat, lon, radius));
-        pts.push(latLonToVector3(lat, lon + 3, radius));
+        pts.push(new THREE.Vector3(...latLonToXYZ(lat, lon, radius)));
+        pts.push(new THREE.Vector3(...latLonToXYZ(lat, lon + 3, radius)));
       }
     }
     for (let lon = -180; lon < 180; lon += 30) {
       for (let lat = -80; lat < 80; lat += 3) {
-        pts.push(latLonToVector3(lat, lon, radius));
-        pts.push(latLonToVector3(lat + 3, lon, radius));
+        pts.push(new THREE.Vector3(...latLonToXYZ(lat, lon, radius)));
+        pts.push(new THREE.Vector3(...latLonToXYZ(lat + 3, lon, radius)));
       }
     }
     const g = new THREE.BufferGeometry().setFromPoints(pts);

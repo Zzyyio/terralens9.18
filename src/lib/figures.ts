@@ -251,6 +251,18 @@ const itcz: Fig = {
   caption: "The ITCZ is a rain band, not the whole Hadley cell.",
   credit: "NASA, public domain",
 };
+const waterCarbon: Fig = {
+  src: `${P}/carbon-store.jpg`,
+  alt: "A closed tropical forest canopy, a living carbon store above a wet catchment.",
+  caption: "Water and carbon as stores and flows. Not a river meander.",
+  credit: "NASA, public domain",
+};
+const solarSystem: Fig = {
+  src: `${P}/earth-apollo17.jpg`,
+  alt: "The whole Earth as a sphere seen from space — one planet, not a seasons table.",
+  caption: "A sphere among other spheres. This is not a table of seasons.",
+  credit: "NASA / Apollo 17, public domain",
+};
 
 export const LAB_FIGURE: Record<string, Fig> = {
   seasons: earth,
@@ -263,7 +275,7 @@ export const LAB_FIGURE: Record<string, Fig> = {
   "water-cycle": chalk,
   volcanoes: volcano,
   "soil-texture": soil,
-  "solar-system": earth,
+  "solar-system": solarSystem,
   tides: moon,
   "seafloor-spreading": ridge,
   "atmosphere-layers": stormCloud,
@@ -329,7 +341,7 @@ export const LAB_FIGURES: Record<string, [Fig, Fig]> = {
   "water-cycle": [chalk, clouds],
   volcanoes: [volcano, shield],
   "soil-texture": [soil, soilHorizons],
-  "solar-system": [earth, moon],
+  "solar-system": [solarSystem, moon],
   tides: [moon, earth],
   "seafloor-spreading": [ridge, fault],
   "atmosphere-layers": [stormCloud, terminator],
@@ -463,7 +475,7 @@ export const REALM_FIGURE: Record<RealmSlug, Fig> = {
   planet: terminator,
   interior: interior,
   atmosphere: stormCloud,
-  water: meander,
+  water: waterCarbon,
   landforms: yosemite,
   soils: soilHorizons,
   hazards: volcano,

@@ -4,11 +4,14 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { MiniMap } from "@/components/map/mini-map";
 import { LAB_BY_SLUG } from "@/lib/labs/catalog";
-import { headFor } from "@/lib/seo";
+import { headFor, learningResourceJsonLd, siteOrigin } from "@/lib/seo";
 import { Figure } from "@/components/figure";
-import { labFigure } from "@/lib/figures";
+import { caseFigure } from "@/lib/case-figures";
 
 export const Route = createFileRoute("/case/$slug")({
+  beforeLoad: ({ params }) => {
+    if (!CASE_BY_SLUG[params.slug]) throw notFound();
+  },
   component: CasePage,
   head: ({ params }) => {
     const c = CASE_BY_SLUG[params.slug];
@@ -27,13 +30,22 @@ function CasePage() {
   const labs = c.labs.map((s) => LAB_BY_SLUG[s]).filter(Boolean);
   const openSlug = c.labs[0];
   const href = openSlug ? `/lab/${openSlug}${c.state ? `?${c.state}` : ""}` : "/explore";
+  const fig = caseFigure(c.slug);
+  const jsonLd = learningResourceJsonLd({
+    name: c.title,
+    description: c.lede,
+    url: `${siteOrigin()}/case/${c.slug}`,
+    educationalLevel: ["KS3", "GCSE", "A-level", "NGSS", "APES"],
+    about: c.place,
+  });
   return (
     <main id="main" className="mx-auto max-w-[720px] px-5 pb-24 pt-24">
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
       <p className="section-label">Case study · {c.region}</p>
       <h1 className="mt-3 font-display text-4xl">{c.title}</h1>
       <p className="mt-2 text-glacier">{c.place}</p>
       <p className="mt-6 text-lg leading-7 text-chalk/90">{c.lede}</p>
-      {openSlug && labFigure(openSlug) && <Figure {...labFigure(openSlug)!} className="mt-6" />}
+      {fig && <Figure {...fig} className="mt-6" />}
       <div className="mt-8">
         <MiniMap lat={c.lat} lon={c.lon} zoom={c.zoom} label={c.title} />
         <p className="mt-2 font-mono text-[11px] text-mist">

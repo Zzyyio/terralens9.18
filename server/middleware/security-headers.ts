@@ -5,11 +5,12 @@
 const CSP = [
   "default-src 'self'",
   "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://grok.com https://*.grok.com",
-  "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
-  "font-src 'self' https://fonts.gstatic.com data:",
+  "style-src 'self' 'unsafe-inline'",
+  "font-src 'self' data:",
   "img-src 'self' data: blob: https:",
   [
     "connect-src 'self'",
+    "blob:",
     "https://tiles.openfreemap.org",
     "https://*.openfreemap.org",
     "https://api.open-meteo.com",
@@ -24,13 +25,14 @@ const CSP = [
     "https://*.grok.com",
   ].join(" "),
   "worker-src 'self' blob:",
-  "child-src 'self' blob:",
+  "child-src 'self' blob: https://www.youtube.com https://www.youtube-nocookie.com",
+  "frame-src 'self' https://www.youtube.com https://www.youtube-nocookie.com",
   "frame-ancestors 'self'",
   "base-uri 'self'",
   "form-action 'self'",
 ].join("; ");
 
-const INDEXABLE = process.env.VITE_INDEXABLE === "1";
+const INDEXABLE = process.env.VITE_INDEXABLE === "1" || process.env.VITE_INDEXABLE === "true";
 
 export default async function securityHeadersMiddleware(
   _event: unknown,

@@ -8,7 +8,6 @@ const TOOLS = [
   { to: "/tools/earth-motion", label: "Earth-motion calculator", hint: "Date + latitude → noon Sun" },
   { to: "/tools/live-weather", label: "Live weather", hint: "Open-Meteo on a MapLibre map" },
   { to: "/tools/map", label: "World map studio", hint: "Relief, rivers, plates, climate" },
-  { to: "/search", label: "Search", hint: "Labs, glossary, cases" },
 ] as const;
 
 export function Header({ variant = "default" }: { variant?: "default" | "lab" }) {
