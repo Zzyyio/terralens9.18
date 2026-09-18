@@ -1,0 +1,417 @@
+A horizon
+Abrasion
+Absorption
+Abstraction
+Active layer
+Adiabatic cooling
+Af
+Age-progressive chain
+Air mass
+Albedo
+Anticline
+Anticyclone
+Appalachians
+Aquifer
+Aquitard
+Arête
+Asthenosphere
+Astronomical unit
+Attrition
+Axial tilt
+B horizon
+BWh
+Backslope
+Barchan
+Barrier
+Barrier island
+Basalt
+Baseflow
+Basin
+Beheaded stream
+Biological weathering
+Biome
+Blockfield
+Buys Ballot’s law
+Caldera
+Caledonides
+Cambrian
+Canary Current
+Canyon
+Carbonation
+Catena
+Cfb
+Chemical weathering
+Cirque
+Clay
+Climate
+Clint
+Cold front
+Colluvium
+Comma cloud
+Competence
+Compromise projection
+Conduit
+Cone of depression
+Confined aquifer
+Confluence
+Conformal
+Constructive wave
+Continental drift
+Continental shelf
+Continentality
+Contour
+Contour interval
+Convergence
+Convergent
+Conveyor
+Coriolis
+Cover
+Crest
+Crown
+Crust
+Curie point
+Cut bank
+Cyclone
+Dam regulation
+Day length
+Declination
+Deep time
+Deep water formation
+Deflation
+Delta
+Density
+Depression
+Destructive wave
+Discharge
+Distortion
+Divergence
+Divergent
+Doline
+Drainage basin
+Drawdown
+Drumlin
+E horizon
+ENSO
+Eastern boundary current
+Easting
+Ecliptic
+El Niño
+Elbow of capture
+Emission
+Energy budget
+Epicentre
+Equal-area
+Equator
+Equinox
+Erg
+Erosion
+Estuary
+Eustatic
+Evaporative cooling
+Evapotranspiration
+Extra-tropical
+Eye
+Eyewall
+Falling limb
+False origin
+Fast cycle
+Ferrel cell
+Fissure eruption
+Floodplain
+Flux
+Focus
+Foliation
+Footwall
+Fossil fuel
+Four-figure grid reference
+Fracture zone
+Friction
+Frost shattering
+Föhn / chinook
+Gas giant
+Geodynamo
+Geostrophic wind
+Glacial rebound
+Gley
+Gnomon
+Gores
+Gorge
+Graticule
+Greenhouse effect
+Grid square
+Groyne
+Gryke
+Gulf Stream
+Gully
+Guyot
+Gyre
+Hadley cell
+Hanging valley
+Hanging wall
+Headward erosion
+Helicoidal flow
+Hill
+Horizon
+Horn
+Hotspot
+Hydraulic action
+Hydrograph
+ITCZ
+Ice giant
+Ice wedge
+Igneous
+Incidence
+Inner core
+Insolation
+Intensity
+Interception
+Interfluve
+International Date Line
+Intraplate volcanism
+Inverse barometer
+Inversion
+Isobar
+Isostasy
+Kepler’s third law
+Knoll
+Köppen
+K–Pg
+La Niña
+Lag time
+Land breeze
+Lapse rate
+Latitude
+Leeward
+Levee
+Levée
+Light year
+Limestone pavement
+Lithification
+Lithosphere
+Loam
+Local stars
+Log spiral
+Long profile
+Longitude
+Longshore drift
+Longwave
+Lunar eclipse
+Ma
+Magma
+Magnetic reversal
+Magnetic stripe
+Magnitude
+Mantle
+Mantle plume
+Mass movement
+Meander
+Mechanical weathering
+Megathrust
+Mercator
+Meridian
+Mesosphere
+Metamorphic
+Mid-ocean ridge
+Midlatitude cyclone
+Misfit stream
+Mollisol
+Moraine
+Mountain
+Mouth
+NADW
+Nabkha
+Neap tide
+Near side
+Nick point
+Nival
+Nivation
+Node
+Noon altitude
+Normal fault
+Northing
+O horizon
+OSGB
+Occlusion
+Oceanic crust
+Onshore flow
+Orbital inclination
+Orbital period
+Order of magnitude
+Orogeny
+Orographic rainfall
+Outer core
+Oxbow
+Oxisol
+Ozone layer
+P-wave
+PGF
+Pangaea
+Parallel
+Parsec
+Partial melt
+Passive margin
+Patterned ground
+Peak discharge
+Penumbra
+Periglacial
+Perihelion
+Permafrost
+Phase
+Photosphere
+Photosynthesis
+Pirate stream
+Plain
+Planetary ring
+Plateau
+Plunge pool
+Pluvial
+Polar cell
+Pore pressure
+Pothole
+Power of ten
+Precambrian
+Pressure difference
+Pressure gradient
+Prime meridian
+Projection
+Pyroclastic
+Quadrature
+R horizon
+Radiosonde
+Rain shadow
+Rain splash
+Rainband
+Raised beach
+Ranker
+Recharge
+Regime
+Relief
+Residence time
+Respiration
+Resurgence
+Reverse fault
+Revolution
+Rhumb line
+Rift
+Rill
+Rising limb
+Root
+Rotation
+Rotational slump
+Run-up
+S-wave
+Saffir–Simpson
+Salinity
+Saltation
+Sand
+Scale jump
+Sea breeze
+Seafloor spreading
+Seamount
+Sediment budget
+Sedimentary
+Semi-diurnal tide
+Shear surface
+Shelf
+Shelf fit
+Shield volcano
+Shoaling
+Shortwave
+Sidereal day
+Silt
+Six-figure grid reference
+Slip-off slope
+Slow cycle
+Snowmelt
+Solar altitude
+Solar constant
+Solar day
+Solar eclipse
+Solstice
+Source
+Spit
+Spot height
+Spreading rate
+Spring line
+Spring tide
+Spur
+Squall line
+Stack
+Stage
+Stalactite
+Still-water flood
+Store
+Storm surge
+Stratosphere
+Stratovolcano
+Strike-slip
+Stump
+Subduction
+Subtropical high
+Sun path
+Sunspot
+Supercontinent
+Surface current
+Surface trace
+Surface wave
+Suspension
+Swallow hole
+Syncline
+Synodic month
+Syzygy
+Teleconnection
+Terminator
+Terminator (day–night)
+Ternary plot
+Terrane
+Terrestrial planet
+Texture
+Thermal circulation
+Thermal equator
+Thermohaline
+Thermosphere
+Tidal bulge
+Tidal range
+Till
+Time zone
+Toe
+Tombolo
+Top of atmosphere
+Trade winds
+Transfer
+Transform
+Trench
+Tributary
+Tropical cyclone
+Tropics
+Tropopause
+Troposphere
+True scale
+Tsunami
+U-trough
+USDA texture triangle
+Umbra
+Upwelling
+Urban heat island
+V-valley
+Valley
+Vine–Matthews
+Viscosity
+WGS84
+Walker cell
+Warm front
+Warm pool
+Warm sector
+Water table
+Watershed
+Wavelength
+Weathering
+Weathering (to sediment)
+Westerlies
+Western boundary current
+Wilson cycle
+Wind gap
+Wind setup
+Windward
+Yardang
+ka

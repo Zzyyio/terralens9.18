@@ -201,6 +201,16 @@ function EarthMotion() {
           <div className="overflow-hidden rounded-2xl border border-white/10 bg-void">
             <div className="relative h-[min(56vh,32rem)]">
               <MotionGlobe date={date} tilt={tilt} site={a} other={b} onPick={(lat, lon) => setA((s) => ({ ...s, lat, lon, name: "Dropped point" }))} />
+              <div className="pointer-events-none absolute left-3 top-3 rounded-xl border border-white/10 bg-basalt/85 px-3 py-2 font-mono text-[12px] leading-5 text-chalk backdrop-blur">
+                <p className="text-glacier">{a.name}</p>
+                <p>Noon altitude {outA.noon.toFixed(1)}°</p>
+                <p>Day length {outA.length.toFixed(2)} h</p>
+                {b && outB ? (
+                  <p className="mt-1 text-mist">
+                    {b.name}: {outB.noon.toFixed(1)}° · {outB.length.toFixed(2)} h
+                  </p>
+                ) : null}
+              </div>
             </div>
             <p className="px-4 py-3 font-mono text-[11px] text-mist">
               Click the Earth to set Place A latitude. Terminator walks with date and tilt. Orbit radius is a

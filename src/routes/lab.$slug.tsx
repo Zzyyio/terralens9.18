@@ -5,7 +5,8 @@ import { LAB_SCENES } from "@/labs/registry";
 import { LAB_ALIASES } from "@/lib/redirects";
 import { LabPlayer } from "@/components/lab/lab-player";
 import { LabLoadFallback } from "@/components/lab/load-gate";
-import { canonicalLink, learningResourceJsonLd, pageTitle, robotsMeta, siteOrigin } from "@/lib/seo";
+import { headFor, learningResourceJsonLd, siteOrigin } from "@/lib/seo";
+import { LAB_FIGURE } from "@/lib/figures";
 
 export const Route = createFileRoute("/lab/$slug")({
   beforeLoad: ({ params }) => {
@@ -16,22 +17,18 @@ export const Route = createFileRoute("/lab/$slug")({
   head: ({ params }) => {
     const lab = LAB_BY_SLUG[params.slug];
     if (!lab) {
-      return {
-        meta: [
-          { title: pageTitle("Not on the bench") },
-          { name: "description", content: "This slug is not a shipped lab." },
-          robotsMeta(),
-        ],
-      };
+      return headFor({
+        title: "Not on the bench",
+        description: "This slug is not a shipped lab.",
+        path: `/lab/${params.slug}`,
+      });
     }
-    return {
-      meta: [
-        { title: pageTitle(lab.title) },
-        { name: "description", content: lab.hook },
-        robotsMeta(),
-      ],
-      links: [canonicalLink(`/lab/${lab.slug}`)],
-    };
+    return headFor({
+      title: lab.title,
+      description: lab.objective,
+      path: `/lab/${lab.slug}`,
+      image: LAB_FIGURE[lab.slug]?.src,
+    });
   },
   component: LabPage,
 });
@@ -47,10 +44,11 @@ function LabPage() {
 
   const jsonLd = learningResourceJsonLd({
     name: lab.title,
-    description: lab.hook,
+    description: lab.objective,
     url: `${siteOrigin()}/lab/${lab.slug}`,
     educationalLevel: lab.ages,
     about: lab.realm,
+    image: LAB_FIGURE[lab.slug]?.src,
   });
 
   return (

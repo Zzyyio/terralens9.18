@@ -1,8 +1,8 @@
-import { lazy, Suspense, useState } from "react";
+import { lazy, Suspense } from "react";
 
 const HeroEarth = lazy(() => import("./hero-earth").then((m) => ({ default: m.HeroEarth })));
 
-function Poster({ onPlay }: { onPlay?: () => void }) {
+function MarblePoster({ note }: { note?: string }) {
   return (
     <div className="absolute inset-0 bg-void">
       <img
@@ -11,26 +11,20 @@ function Poster({ onPlay }: { onPlay?: () => void }) {
         className="size-full object-cover opacity-40"
       />
       <div className="absolute inset-0 bg-gradient-to-r from-void via-void/70 to-transparent" />
-      {onPlay && (
-        <button
-          type="button"
-          onClick={onPlay}
-          className="absolute bottom-6 left-5 z-20 rounded-full border border-white/10 bg-white/8 px-4 py-2 text-sm text-chalk backdrop-blur-xl md:bottom-8 md:left-auto md:right-8"
-        >
-          Play 3D globe
-        </button>
-      )}
+      {note ? (
+        <p className="absolute bottom-6 left-5 z-10 max-w-xs rounded-full border border-white/10 bg-white/8 px-4 py-2 text-sm text-mist backdrop-blur-xl">
+          {note}
+        </p>
+      ) : null}
     </div>
   );
 }
 
-/** Marketing globe: poster first so the homepage does not download the 3D stack. Same Blue Marble once 3D is on. */
+/** Homepage globe: 3D on load. Static Blue Marble only if WebGL is missing — not a 2D globe widget. */
 export function HomeHero() {
-  const [want, setWant] = useState(false);
-  if (!want) return <Poster onPlay={() => setWant(true)} />;
   return (
-    <Suspense fallback={<Poster />}>
-      <HeroEarth force3d />
+    <Suspense fallback={<MarblePoster />}>
+      <HeroEarth />
     </Suspense>
   );
 }

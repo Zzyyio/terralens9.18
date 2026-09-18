@@ -8,6 +8,7 @@ import { isListed, labStatus } from "@/lib/labs/status";
 import { headFor } from "@/lib/seo";
 import { CASES } from "@/lib/cases";
 import { PATHS } from "@/lib/paths";
+import { caseFigure } from "@/lib/case-figures";
 
 export const Route = createFileRoute("/")({
   component: Home,
@@ -16,10 +17,17 @@ export const Route = createFileRoute("/")({
       title: "See how the Earth works",
       description: "Free 3D labs for geography and Earth science students.",
       path: "/",
+      image: "/og.jpg",
     }),
 });
 
 const FEATURED = ["seasons", "earth-interior", "contours", "rivers"];
+const FEATURED_CASES = [
+  "holderness",
+  "mississippi",
+  "hong-kong-landslide",
+  "shanghai-huangpu",
+];
 
 function Home() {
   const featured = FEATURED.map((s) => LABS.find((l) => l.slug === s)!).filter(Boolean);
@@ -106,6 +114,46 @@ function Home() {
           {featured.map((lab) => (
             <LabCard key={lab.slug} lab={lab} />
           ))}
+        </div>
+      </section>
+
+      <section className="mx-auto max-w-[1280px] px-5 pb-16 md:pb-24">
+        <div className="flex items-end justify-between gap-4">
+          <div>
+            <p className="section-label">Case studies</p>
+            <h2 className="mt-3 font-display text-3xl text-chalk">
+              {CASES.length} places. UK, US, East Asia.
+            </h2>
+          </div>
+          <Link to="/explore" className="hidden text-sm text-glacier hover:underline md:inline">
+            All cases
+          </Link>
+        </div>
+        <div className="mt-10 grid gap-5 md:grid-cols-2 xl:grid-cols-4">
+          {FEATURED_CASES.map((slug) => {
+            const c = CASES.find((x) => x.slug === slug);
+            if (!c) return null;
+            const fig = caseFigure(c.slug);
+            return (
+              <Link
+                key={c.slug}
+                to="/case/$slug"
+                params={{ slug: c.slug }}
+                className="group flex flex-col overflow-hidden rounded-2xl border border-white/10 bg-white/[0.04] transition-colors hover:border-glacier/40"
+              >
+                <div className="aspect-[16/10] overflow-hidden bg-trench">
+                  {fig ? <img src={fig.src} alt={fig.alt} className="size-full object-cover" /> : null}
+                </div>
+                <div className="flex flex-1 flex-col gap-2 p-5">
+                  <p className="font-mono text-[11px] uppercase tracking-[0.14em] text-glacier">
+                    {c.region} · {c.place}
+                  </p>
+                  <h3 className="font-display text-xl text-chalk group-hover:text-glacier">{c.title}</h3>
+                  <p className="line-clamp-3 text-sm leading-6 text-mist">{c.lede}</p>
+                </div>
+              </Link>
+            );
+          })}
         </div>
       </section>
 

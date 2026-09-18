@@ -4,7 +4,7 @@ import type { LabMeta, PanelTab } from "@/lib/labs/types";
 import { useLabControls } from "@/lib/store/lab-controls";
 import { cn } from "@/lib/utils";
 import { Figure } from "@/components/figure";
-import { labFigures, termFigure } from "@/lib/figures";
+import { labFigures, termThumb } from "@/lib/figures";
 import { labVideo } from "@/lib/lab-videos";
 import { tenQuestions } from "@/lib/labs/ten-questions";
 
@@ -41,7 +41,7 @@ export function WhyPanel({ lab }: { lab: LabMeta }) {
             type="button"
             onClick={() => setTab(id)}
             className={cn(
-              "flex-1 py-2.5 text-[11px] font-medium uppercase tracking-[0.12em]",
+              "flex min-h-11 flex-1 items-center justify-center px-1 text-[11px] font-medium uppercase tracking-[0.12em]",
               tab === id ? "text-glacier" : "text-mist hover:text-chalk",
             )}
             aria-label={id === "teach" ? "Teacher" : label}
@@ -102,8 +102,7 @@ export function WhyPanel({ lab }: { lab: LabMeta }) {
             )}
           </div>
         )}
-        {tab === "terms" && (
-          <div className="space-y-3">
+        <div className={cn("space-y-3", tab !== "terms" && "hidden")}>
             <label className="flex min-h-11 items-center justify-between gap-2 text-mist">
               Exam language
               <input
@@ -114,7 +113,7 @@ export function WhyPanel({ lab }: { lab: LabMeta }) {
               />
             </label>
             {lab.glossary.map((g) => {
-              const tfig = termFigure(g.term);
+              const tfig = termThumb(lab.slug, g.term);
               const show = tfig && !seenTermSrc.has(tfig.src);
               if (tfig && show) seenTermSrc.add(tfig.src);
               return (
@@ -127,7 +126,6 @@ export function WhyPanel({ lab }: { lab: LabMeta }) {
               );
             })}
           </div>
-        )}
         {tab === "check" && <CheckList lab={lab} />}
         {tab === "teach" && (
           <div className="space-y-3">

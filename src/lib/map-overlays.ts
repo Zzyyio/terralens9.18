@@ -1,4 +1,4 @@
-type Geom = { type: "LineString" | "Point"; coordinates: number[] | number[][] };
+type Geom = { type: "LineString" | "Point" | "Polygon"; coordinates: number[] | number[][] | number[][][] };
 type Feat = {
   type: "Feature";
   properties: Record<string, string>;
@@ -208,3 +208,211 @@ export function plateColor(kind: string) {
   if (kind === "transform") return "#E8B86D";
   return "#FF6A3D";
 }
+
+function poly(name: string, kind: string, note: string, coordinates: number[][]): Feat {
+  return {
+    type: "Feature",
+    properties: { name, kind, note, title: name },
+    geometry: { type: "Polygon", coordinates: [coordinates] },
+  };
+}
+
+/** Simplified plate polygons for classroom identification — not a research plate model. */
+export const PLATE_POLYS: OverlayFC = {
+  type: "FeatureCollection",
+  features: [
+    poly("Pacific plate", "plate", "The largest oceanic plate. Consumed at trenches around the Ring.", [
+      [120, 50], [180, 50], [180, -60], [120, -60], [120, 50],
+    ]),
+    poly("North American plate", "plate", "Continent plus western Atlantic floor. San Andreas is its west edge.", [
+      [-170, 72], [-50, 72], [-50, 15], [-120, 15], [-170, 50], [-170, 72],
+    ]),
+    poly("Eurasian plate", "plate", "A collage. The Himalaya is India arriving, not this plate growing.", [
+      [-10, 72], [140, 72], [140, 35], [40, 28], [-10, 40], [-10, 72],
+    ]),
+    poly("African plate", "plate", "A continent with a rift. The east is splitting.", [
+      [-20, 38], [50, 38], [50, -36], [-18, -36], [-20, 38],
+    ]),
+    poly("South American plate", "plate", "Continent plus a trench on the west. The Andes sit above the dive.", [
+      [-80, 12], [-35, 12], [-35, -56], [-76, -56], [-80, 12],
+    ]),
+    poly("Indo-Australian plate", "plate", "India walked north. Australia is on the same slow conveyor.", [
+      [60, 30], [150, 10], [150, -50], [70, -40], [60, 30],
+    ]),
+    poly("Antarctic plate", "plate", "Almost surrounded by ridges. New floor walks away from Antarctica.", [
+      [-180, -60], [180, -60], [180, -89], [-180, -89], [-180, -60],
+    ]),
+    poly("Nazca plate", "plate", "A small oceanic plate diving under South America.", [
+      [-90, 5], [-70, 5], [-76, -40], [-100, -40], [-90, 5],
+    ]),
+  ],
+};
+
+export const VOLCANOES: OverlayFC = {
+  type: "FeatureCollection",
+  features: [
+    point("Fuji", "volcano", "Stratovolcano on a subduction arc. Sticky magma, steep cone.", 138.73, 35.36),
+    point("St Helens", "volcano", "Cascadia arc. Not the San Andreas.", -122.19, 46.2),
+    point("Vesuvius", "volcano", "A classic sticky-magma cone above a subduction hinge.", 14.43, 40.82),
+    point("Etna", "volcano", "Europe’s most active. An arc cousin, not a hotspot shield.", 15.0, 37.75),
+    point("Kīlauea", "volcano", "Hotspot shield. Runny basalt, not an island arc.", -155.29, 19.41),
+    point("Mauna Loa", "volcano", "The type shield. Gentle slopes of stacked basalt.", -155.61, 19.48),
+    point("Eyjafjallajökull", "volcano", "A ridge with ice on it. Iceland is not a subduction arc.", -19.62, 63.63),
+    point("Nyiragongo", "volcano", "East African Rift. A continent splitting, not a trench.", 29.25, -1.52),
+    point("Krakatau", "volcano", "Sunda arc. A volcanic island on a diving plate.", 105.42, -6.1),
+    point("Pinatubo", "volcano", "Philippine arc. 1991 ash as a climate forcing.", 120.35, 15.14),
+    point("Popocatépetl", "volcano", "Mexican volcanic belt. Subduction, a high city nearby.", -98.63, 19.02),
+    point("Cotopaxi", "volcano", "Andean arc. Trench to the west, sticky magma here.", -78.44, -0.68),
+    point("Ruapehu", "volcano", "Taupō volcanic zone. A dipping plate under New Zealand.", 175.56, -39.28),
+    point("Bezymianny", "volcano", "Kamchatka arc. Pacific plate consumed.", 160.59, 55.98),
+  ],
+};
+
+export const QUAKES: OverlayFC = {
+  type: "FeatureCollection",
+  features: [
+    point("San Francisco 1906", "quake", "Transform. Shallow, a slide, not a volcanic arc.", -122.4, 37.8),
+    point("Tohoku 2011", "quake", "Megathrust. Trench, tsunami, a diving Pacific plate.", 142.4, 38.3),
+    point("Sumatra 2004", "quake", "Sunda megathrust. The Indian Ocean tsunami started here.", 95.9, 3.3),
+    point("Haiti 2010", "quake", "Caribbean edge. A slide plus a small subduction bite.", -72.5, 18.5),
+    point("Christchurch 2011", "quake", "A colliding edge under a city. Not a Hawaiian hotspot.", 172.64, -43.53),
+    point("Kashmir 2005", "quake", "Continent–continent. The Himalaya wedge.", 73.6, 34.5),
+    point("Mexico City 1985", "quake", "A subduction earthquake felt on lake sediments.", -99.1, 19.4),
+    point("Lisbon 1755", "quake", "Atlantic margin. Tsunami in a European capital.", -10.0, 36.5),
+    point("Anchorage 1964", "quake", "Aleutian megathrust. The largest US instrumented quake.", -147.4, 61.0),
+    point("İzmit 1999", "quake", "North Anatolian Fault. A transform through Türkiye.", 30.0, 40.7),
+  ],
+};
+
+export const CURRENTS: OverlayFC = {
+  type: "FeatureCollection",
+  features: [
+    line("Gulf Stream", "current", "A warm western-boundary current. Europe’s mild west coast.", [
+      [-80, 25], [-76, 32], [-70, 38], [-50, 42], [-30, 50],
+    ]),
+    line("Kuroshio", "current", "The Pacific’s Gulf Stream cousin. Warm water along Japan.", [
+      [122, 22], [130, 28], [140, 35], [145, 40],
+    ]),
+    line("Humboldt", "current", "A cold eastern-boundary current. The Atacama sits beside it.", [
+      [-72, -40], [-76, -20], [-80, -8], [-82, 0],
+    ]),
+    line("Canary", "current", "Cold water south along NW Africa. Upwelling, dry coasts.", [
+      [-12, 42], [-16, 32], [-18, 22], [-18, 14],
+    ]),
+    line("Agulhas", "current", "Warm water south along Africa, then a retroflection.", [
+      [32, -28], [32, -34], [28, -38], [22, -40],
+    ]),
+    line("Antarctic Circumpolar", "current", "The only current that laps the world. No continent in the way.", [
+      [-170, -56], [-90, -56], [-10, -56], [70, -56], [150, -56], [190, -56],
+    ]),
+  ],
+};
+
+/** Classroom-grade country outlines — not a border treaty. Click to name a state. */
+export const BORDERS: OverlayFC = {
+  type: "FeatureCollection",
+  features: [
+    line("United Kingdom", "border", "An island state. Holderness and the Jurassic Coast sit on it.", [
+      [-5.7, 50.1], [-4.8, 50.3], [-5.0, 51.7], [-3.2, 53.4], [-4.8, 58.6], [-1.8, 57.7], [0.2, 52.9], [1.4, 52.6], [1.3, 51.4], [-0.3, 50.7], [-5.7, 50.1],
+    ]),
+    line("United States (CONUS)", "border", "A political outline on a spinning sphere. Time zones are bargains.", [
+      [-124.7, 48.4], [-123.0, 46.2], [-124.4, 40.4], [-117.1, 32.5], [-97.1, 25.9], [-81.5, 25.2], [-80.0, 32.0], [-76.0, 35.2], [-67.0, 44.8], [-82.5, 41.7], [-83.0, 46.5], [-95.0, 49.0], [-123.0, 49.0], [-124.7, 48.4],
+    ]),
+    line("China", "border", "A large state. Loess Plateau, Huangpu, and a monsoon coast.", [
+      [74, 40], [80, 42], [90, 45], [119, 53], [135, 48], [122, 31], [108, 21], [98, 24], [78, 32], [74, 40],
+    ]),
+    line("Japan", "border", "An island arc above a trench. Not a hotspot chain.", [
+      [130.5, 31.5], [131.5, 33.5], [139.8, 35.4], [141.0, 38.2], [145.5, 43.4], [141.4, 43.0], [130.5, 31.5],
+    ]),
+    line("Iceland", "border", "A ridge with a country on it.", [
+      [-24.5, 63.4], [-22.0, 64.5], [-14.5, 65.5], [-13.5, 65.1], [-18.0, 63.4], [-24.5, 63.4],
+    ]),
+    line("Australia", "border", "An old, dry continent. The Murray–Darling is a drought story.", [
+      [115.0, -34.0], [129.0, -14.0], [142.0, -11.0], [153.5, -28.0], [146.0, -39.0], [115.0, -34.0],
+    ]),
+    line("India", "border", "A continent that walked. The Himalaya is the crumple.", [
+      [68.2, 23.7], [72.8, 21.0], [80.3, 13.1], [80.2, 6.0], [88.4, 21.5], [97.4, 27.8], [78.0, 32.2], [68.2, 23.7],
+    ]),
+    line("Brazil", "border", "A tropical continent. The Amazon is a water and carbon store.", [
+      [-51.0, 4.0], [-34.8, -7.0], [-39.0, -16.0], [-48.0, -28.0], [-53.5, -33.7], [-74.0, -7.0], [-60.0, 5.2], [-51.0, 4.0],
+    ]),
+  ],
+};
+
+/** Trenches: convergent slots. Ridges: divergent axes. Separate from plate polygons. */
+export const TRENCHES: OverlayFC = {
+  type: "FeatureCollection",
+  features: PLATES.features.filter((f) => f.properties.kind === "convergent"),
+};
+
+export const RIDGES: OverlayFC = {
+  type: "FeatureCollection",
+  features: PLATES.features.filter((f) => f.properties.kind === "divergent"),
+};
+
+/** Short motion arrows at named plate edges — classroom schematic, not a GPS velocity field. */
+export const PLATE_ARROWS: OverlayFC = {
+  type: "FeatureCollection",
+  features: [
+    line("Pacific → trench (Japan)", "arrow", "Oceanic plate walks into a trench.", [
+      [155, 34], [143, 35],
+    ]),
+    line("Nazca → Andes", "arrow", "Nazca dives. The Andes sit above the dive.", [
+      [-88, -20], [-76, -20],
+    ]),
+    line("Away from MAR", "arrow", "New crust walks away from the ridge axis.", [
+      [-28, 40], [-18, 40],
+    ]),
+    line("San Andreas slip", "arrow", "Pacific side slides northwest. A transform, not a trench.", [
+      [-119.5, 34.2], [-122.2, 37.2],
+    ]),
+    line("India → Eurasia", "arrow", "A continent that still walks north.", [
+      [80, 22], [82, 28],
+    ]),
+  ],
+};
+
+export const BASINS: OverlayFC = {
+  type: "FeatureCollection",
+  features: [
+    line("Amazon basin divide (schematic)", "basin", "Largest discharge. A tropical store of water and carbon.", [
+      [-74, 5], [-60, 5], [-50, 2], [-50, -12], [-70, -12], [-74, 5],
+    ]),
+    line("Nile corridor", "basin", "A desert with a river. Headwaters in the ITCZ, not a UK front.", [
+      [30, 4], [33, 16], [32, 24], [31, 31],
+    ]),
+    line("Mississippi basin (schematic)", "basin", "Interior continent to a sinking delta.", [
+      [-110, 48], [-82, 42], [-89, 29], [-95, 32], [-110, 48],
+    ]),
+    line("Yangtze corridor", "basin", "Monsoon load from the plateau to a drowning delta.", [
+      [98, 28], [112, 31], [121, 31],
+    ]),
+    line("Ganges–Brahmaputra", "basin", "Collision-belt load. A delta the size of a country.", [
+      [78, 30], [88, 26], [91, 22],
+    ]),
+    line("Congo basin (schematic)", "basin", "Equatorial rainforest. A carbon and water store.", [
+      [12, 5], [28, 5], [28, -8], [12, -8], [12, 5],
+    ]),
+  ],
+};
+
+export const TEACHING_PRESETS: { name: string; lat: number; lon: number; zoom: number; note: string }[] = [
+  { name: "Holderness", lat: 53.75, lon: -0.05, zoom: 9, note: "Till cliffs into the North Sea. Not chalk stacks." },
+  { name: "Himalaya", lat: 28.0, lon: 86.9, zoom: 5, note: "Continent–continent. A crumple, not an arc." },
+  { name: "Hawaii", lat: 19.6, lon: -155.5, zoom: 7, note: "Hotspot shields. Ages northwest." },
+  { name: "Yellowstone", lat: 44.6, lon: -110.5, zoom: 7, note: "A continental hotspot. Geysers, not a trench." },
+  { name: "San Andreas", lat: 36.0, lon: -120.5, zoom: 6, note: "A right-lateral transform. Not a volcanic arc." },
+  { name: "Thingvellir", lat: 64.26, lon: -21.12, zoom: 8, note: "A ridge with a country on it." },
+  { name: "Mississippi delta", lat: 29.2, lon: -89.2, zoom: 7, note: "A sinking bird-foot delta." },
+  { name: "Grand Canyon", lat: 36.1, lon: -112.1, zoom: 8, note: "A river through stacked time." },
+  { name: "Yosemite", lat: 37.74, lon: -119.6, zoom: 9, note: "A granite U-trough. Ice, not a young V." },
+  { name: "Shanghai", lat: 31.23, lon: 121.47, zoom: 9, note: "A tidal river on a delta." },
+  { name: "Hong Kong", lat: 22.3, lon: 114.17, zoom: 10, note: "Weathered granite, steep catchments." },
+  { name: "Loess Plateau", lat: 36.6, lon: 109.2, zoom: 6, note: "Wind-laid silt, then water." },
+  { name: "Cascadia", lat: 46.2, lon: -122.2, zoom: 6, note: "Trench plus an arc. St Helens sits here." },
+  { name: "Mariana Trench", lat: 11.3, lon: 142.2, zoom: 5, note: "A convergent deep. Not a river canyon." },
+  { name: "Greenwich", lat: 51.48, lon: 0.0, zoom: 8, note: "A political line on a spinning sphere." },
+  { name: "Outer Banks", lat: 35.25, lon: -75.53, zoom: 8, note: "A sandy barrier, not a chalk cliff." },
+  { name: "Jurassic Coast", lat: 50.62, lon: -2.27, zoom: 9, note: "Lias and limestone. Cave–arch–stack–stump." },
+];
+

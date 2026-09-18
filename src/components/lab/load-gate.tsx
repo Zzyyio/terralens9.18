@@ -12,14 +12,6 @@ export function LabLoadFallback({ slug, title }: { slug: string; title: string }
     return () => window.clearTimeout(id);
   }, []);
 
-  if (!timedOut) {
-    return (
-      <div className="flex h-full min-h-[42vh] items-center justify-center bg-void text-mist">
-        Loading lab…
-      </div>
-    );
-  }
-
   return (
     <div className="flex h-full min-h-[42vh] flex-col items-center justify-center bg-void px-6">
       <div className="w-full max-w-md overflow-hidden rounded-2xl border border-white/10">
@@ -28,16 +20,19 @@ export function LabLoadFallback({ slug, title }: { slug: string; title: string }
         </div>
       </div>
       <p className="mt-4 max-w-sm text-center text-sm text-mist">
-        The 3D bench is taking longer than a classroom projector likes. Use the still, or press play to keep
-        waiting.
+        {timedOut
+          ? "The 3D bench is taking longer than a classroom projector likes. The still is the lesson; press play to keep waiting."
+          : `Loading ${title}…`}
       </p>
-      <button
-        type="button"
-        onClick={() => play()}
-        className="mt-4 inline-flex h-11 items-center gap-2 rounded-full bg-glacier px-5 text-sm font-medium text-basalt"
-      >
-        <Play className="size-4" /> Play {title}
-      </button>
+      {timedOut && (
+        <button
+          type="button"
+          onClick={() => play()}
+          className="mt-4 inline-flex h-11 items-center gap-2 rounded-full bg-glacier px-5 text-sm font-medium text-basalt"
+        >
+          <Play className="size-4" /> Play {title}
+        </button>
+      )}
     </div>
   );
 }

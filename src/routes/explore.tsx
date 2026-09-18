@@ -84,106 +84,120 @@ function Explore() {
         </Chip>
       </div>
 
-      {kind === "labs" ? (
-        <>
-          <div className="mt-10 flex flex-col gap-6">
-            <FilterRow label="Realm">
-              <Chip active={realm === "all"} onClick={() => setRealm("all")}>
-                All
-              </Chip>
-              {REALMS.map((r) => (
-                <Chip key={r.slug} active={realm === r.slug} onClick={() => setRealm(r.slug)}>
-                  {r.title}
-                </Chip>
-              ))}
-            </FilterRow>
-            <FilterRow label="UK stage">
-              <Chip active={uk === "all"} onClick={() => setUk("all")}>
-                All
-              </Chip>
-              {UK.map((a) => (
-                <Chip key={a} active={uk === a} onClick={() => setUk(a)}>
-                  {a}
-                </Chip>
-              ))}
-            </FilterRow>
-            <FilterRow label="US framework">
-              <Chip active={us === "all"} onClick={() => setUs("all")}>
-                All
-              </Chip>
-              {US.map((a) => (
-                <Chip key={a} active={us === a} onClick={() => setUs(a)}>
-                  {a}
-                </Chip>
-              ))}
-            </FilterRow>
-          </div>
+      <section className="mt-8" aria-label="Case studies">
+        <p className="section-label mb-3">Case studies · always on the chart</p>
+        <div className="flex flex-wrap gap-2">
+          {CASES.map((c) => (
+            <Link
+              key={c.slug}
+              to="/case/$slug"
+              params={{ slug: c.slug }}
+              className="inline-flex h-11 items-center rounded-full border border-white/10 bg-white/6 px-3.5 text-sm text-chalk hover:bg-white/10"
+            >
+              {c.title}
+            </Link>
+          ))}
+        </div>
+      </section>
 
-          <div className="mt-12 grid gap-5 sm:grid-cols-2 xl:grid-cols-3">
-            {list.map((lab) => (
-              <LabCard key={lab.slug} lab={lab} />
-            ))}
-          </div>
-          {list.length === 0 && (
-            <div className="mt-16 max-w-lg">
-              <h2 className="font-display text-2xl">This coordinate is empty ocean.</h2>
-              <p className="mt-3 text-mist">No lab matches that pair. Try All, or another realm.</p>
-              <button
-                type="button"
-                onClick={() => {
-                  setRealm("all");
-                  setUk("all");
-                  setUs("all");
-                }}
-                className="mt-6 inline-flex h-11 items-center rounded-full bg-glacier px-5 text-sm text-basalt"
-              >
-                Explore labs
-              </button>
-            </div>
-          )}
-        </>
-      ) : (
-        <>
-          <div className="mt-10">
-            <FilterRow label="Region">
-              <Chip active={region === "all"} onClick={() => setRegion("all")}>
-                All
+      <div className={cn(kind === "labs" ? "mt-10" : "hidden")}>
+        <div className="flex flex-col gap-6">
+          <FilterRow label="Realm">
+            <Chip active={realm === "all"} onClick={() => setRealm("all")}>
+              All
+            </Chip>
+            {REALMS.map((r) => (
+              <Chip key={r.slug} active={realm === r.slug} onClick={() => setRealm(r.slug)}>
+                {r.title}
               </Chip>
-              {(["UK", "US", "Shared", "East Asia"] as const).map((r) => (
-                <Chip key={r} active={region === r} onClick={() => setRegion(r)}>
-                  {r}
-                </Chip>
-              ))}
-            </FilterRow>
+            ))}
+          </FilterRow>
+          <FilterRow label="UK stage">
+            <Chip active={uk === "all"} onClick={() => setUk("all")}>
+              All
+            </Chip>
+            {UK.map((a) => (
+              <Chip key={a} active={uk === a} onClick={() => setUk(a)}>
+                {a}
+              </Chip>
+            ))}
+          </FilterRow>
+          <FilterRow label="US framework">
+            <Chip active={us === "all"} onClick={() => setUs("all")}>
+              All
+            </Chip>
+            {US.map((a) => (
+              <Chip key={a} active={us === a} onClick={() => setUs(a)}>
+                {a}
+              </Chip>
+            ))}
+          </FilterRow>
+        </div>
+
+        <div className="mt-12 grid gap-5 sm:grid-cols-2 xl:grid-cols-3">
+          {list.map((lab) => (
+            <LabCard key={lab.slug} lab={lab} />
+          ))}
+        </div>
+        {list.length === 0 && (
+          <div className="mt-16 max-w-lg">
+            <h2 className="font-display text-2xl">This coordinate is empty ocean.</h2>
+            <p className="mt-3 text-mist">No lab matches that pair. Try All, or another realm.</p>
+            <button
+              type="button"
+              onClick={() => {
+                setRealm("all");
+                setUk("all");
+                setUs("all");
+              }}
+              className="mt-6 inline-flex h-11 items-center rounded-full bg-glacier px-5 text-sm text-basalt"
+            >
+              Explore labs
+            </button>
           </div>
-          <div className="mt-12 grid gap-5 sm:grid-cols-2 xl:grid-cols-3">
-            {cases.map((c) => {
-              const fig = caseFigure(c.slug);
-              return (
-                <Link
-                  key={c.slug}
-                  to="/case/$slug"
-                  params={{ slug: c.slug }}
-                  className="group flex flex-col overflow-hidden rounded-2xl border border-white/10 bg-white/[0.04] transition-colors hover:border-glacier/40"
-                >
-                  <div className="aspect-[16/10] overflow-hidden bg-trench">
-                    {fig ? (
-                      <img src={fig.src} alt={fig.alt} className="size-full object-cover" />
-                    ) : null}
-                  </div>
-                  <div className="flex flex-1 flex-col gap-2 p-5">
-                    <p className="font-mono text-[11px] uppercase tracking-[0.14em] text-glacier">
-                      {c.region} · {c.place}
-                    </p>
-                    <h2 className="font-display text-xl text-chalk group-hover:text-glacier">{c.title}</h2>
-                    <p className="line-clamp-3 text-sm leading-6 text-mist">{c.lede}</p>
-                  </div>
-                </Link>
-              );
-            })}
-          </div>
-        </>
-      )}
+        )}
+      </div>
+
+      <div className={cn(kind === "cases" ? "mt-10" : "hidden")}>
+        <FilterRow label="Region">
+          <Chip active={region === "all"} onClick={() => setRegion("all")}>
+            All
+          </Chip>
+          {(["UK", "US", "Shared", "East Asia"] as const).map((r) => (
+            <Chip key={r} active={region === r} onClick={() => setRegion(r)}>
+              {r}
+            </Chip>
+          ))}
+        </FilterRow>
+        <div className="mt-12 grid gap-5 sm:grid-cols-2 xl:grid-cols-3">
+          {CASES.map((c) => {
+            const fig = caseFigure(c.slug);
+            const hidden = region !== "all" && c.region !== region;
+            return (
+              <Link
+                key={c.slug}
+                to="/case/$slug"
+                params={{ slug: c.slug }}
+                className={cn(
+                  "group flex flex-col overflow-hidden rounded-2xl border border-white/10 bg-white/[0.04] transition-colors hover:border-glacier/40",
+                  hidden && "hidden",
+                )}
+              >
+                <div className="aspect-[16/10] overflow-hidden bg-trench">
+                  {fig ? <img src={fig.src} alt={fig.alt} className="size-full object-cover" /> : null}
+                </div>
+                <div className="flex flex-1 flex-col gap-2 p-5">
+                  <p className="font-mono text-[11px] uppercase tracking-[0.14em] text-glacier">
+                    {c.region} · {c.place}
+                  </p>
+                  <h2 className="font-display text-xl text-chalk group-hover:text-glacier">{c.title}</h2>
+                  <p className="line-clamp-3 text-sm leading-6 text-mist">{c.lede}</p>
+                </div>
+              </Link>
+            );
+          })}
+        </div>
+      </div>
     </main>
   );
 }

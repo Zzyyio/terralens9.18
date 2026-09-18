@@ -1,6 +1,8 @@
 /**
  * Security headers for HTML and static responses.
  * CSP must allow https://grok.com (PWA injector) and map/weather origins.
+ * Indexing is host-aware: terralens.grok.me may index; preview hosts stay noindex
+ * even when VITE_INDEXABLE=true.
  */
 const CSP = [
   "default-src 'self'",
@@ -20,6 +22,9 @@ const CSP = [
     "https://*.tile.opentopomap.org",
     "https://tile.opentopomap.org",
     "https://*.basemaps.cartocdn.com",
+    "https://services.arcgisonline.com",
+    "https://server.arcgisonline.com",
+    "https://*.arcgisonline.com",
     "https://demotiles.maplibre.org",
     "https://grok.com",
     "https://*.grok.com",
@@ -34,8 +39,43 @@ const CSP = [
 
 const INDEXABLE = process.env.VITE_INDEXABLE === "1" || process.env.VITE_INDEXABLE === "true";
 
+type HeaderBag = { get(name: string): string | null };
+type SecurityEvent = {
+  url?: URL;
+  req?: { headers?: HeaderBag };
+};
+
+function requestHost(event: SecurityEvent): string {
+  const headers = event.req?.headers;
+  const raw =
+    (headers && typeof headers.get === "function"
+      ? (headers.get("x-forwarded-host") ?? headers.get("host"))
+      : null) ??
+    event.url?.host ??
+    process.env.VITE_PUBLIC_HOSTNAME ??
+    "";
+  return String(raw).split(",")[0]?.trim() ?? "";
+}
+
+function isPreviewHost(host: string): boolean {
+  const h = host.split(":")[0]?.toLowerCase() || "";
+  if (!h) return true;
+  if (h.includes("localhost") || h.includes("127.0.0.1") || h.includes("0.0.0.0")) return true;
+  if (h.includes("grok-sandbox")) return true;
+  if (/^\d{1,3}(?:\.\d{1,3}){3}$/.test(h)) return true;
+  if (h.endsWith(".vercel.app")) return true;
+  return false;
+}
+
+/** Preview stays gated. Official terralens.grok.me is open. Other hosts follow VITE_INDEXABLE. */
+function allowIndex(host: string): boolean {
+  if (isPreviewHost(host)) return false;
+  if (/terralens\.grok\.me/i.test(host)) return true;
+  return INDEXABLE;
+}
+
 export default async function securityHeadersMiddleware(
-  _event: unknown,
+  event: SecurityEvent,
   next: () => unknown | Promise<unknown>,
 ): Promise<unknown> {
   const result = await next();
@@ -45,7 +85,11 @@ export default async function securityHeadersMiddleware(
   headers.set("Referrer-Policy", "strict-origin-when-cross-origin");
   headers.set("X-Frame-Options", "SAMEORIGIN");
   headers.set("Content-Security-Policy", CSP);
-  if (!INDEXABLE) headers.set("X-Robots-Tag", "noindex, nofollow");
+  if (allowIndex(requestHost(event))) {
+    headers.delete("X-Robots-Tag");
+  } else {
+    headers.set("X-Robots-Tag", "noindex, nofollow");
+  }
   return new Response(result.body, {
     status: result.status,
     statusText: result.statusText,

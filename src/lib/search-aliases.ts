@@ -6,6 +6,7 @@ export const SEARCH_ALIASES: Record<string, string> = {
   飓风: "tropical-cyclone",
   滑坡: "mass-movement",
   黄土: "loess",
+  三峡: "three gorges",
   香港: "hong kong",
   上海: "shanghai",
   黄浦: "shanghai",

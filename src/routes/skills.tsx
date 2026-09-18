@@ -26,8 +26,13 @@ function Skills() {
       <p className="section-label">Skills studio</p>
       <h1 className="mt-3 font-display text-4xl">Read the map, then the hill.</h1>
       <p className="mt-5 max-w-2xl text-lg leading-7 text-mist">
-        GCSE map questions are contour questions. Then the graticule, a projection, a grid reference, a
-        hydrograph, a texture triangle — skills that earn their own bench.
+        This page is the skills studio — a bench of labs you can open.{" "}
+        <Link to="/realms/$realm" params={{ realm: "skills" }} className="text-ice hover:underline">
+          /realms/skills
+        </Link>{" "}
+        is the same realm as a catalogue card: hook, photo, and the list. Start here to run a contour or a
+        projection; use the realm page to browse. GCSE map questions are contour questions. Then the
+        graticule, a projection, a grid reference, a hydrograph, a texture triangle.
       </p>
       <div className="mt-10 grid gap-5 sm:grid-cols-2 xl:grid-cols-3">
         {labs.map((lab) => (

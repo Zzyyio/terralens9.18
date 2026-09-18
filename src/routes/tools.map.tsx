@@ -1,7 +1,24 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useMemo, useState } from "react";
 import { LibreMap, type MapFeatureHit } from "@/components/map/libre-map";
-import { KOPPEN, PLATES, PLATE_LEGEND, RIVERS, SEARCH_POI, SETTLEMENTS } from "@/lib/map-overlays";
+import {
+  BASINS,
+  CURRENTS,
+  KOPPEN,
+  PLATES,
+  PLATE_ARROWS,
+  PLATE_LEGEND,
+  PLATE_POLYS,
+  QUAKES,
+  RIDGES,
+  RIVERS,
+  SEARCH_POI,
+  SETTLEMENTS,
+  TEACHING_PRESETS,
+  TRENCHES,
+  BORDERS,
+  VOLCANOES,
+} from "@/lib/map-overlays";
 import { ATLAS, atlasGeo, atlasKindLabel, nearestAtlasPlace } from "@/lib/atlas-data";
 import { cn } from "@/lib/utils";
 import { fmtLatLon, haversineKm } from "@/lib/geo";
@@ -12,12 +29,13 @@ export const Route = createFileRoute("/tools/map")({
   head: () =>
     headFor({
       title: "World map studio",
-      description: "Readable world map with relief, rivers, settlements, three kinds of plate boundary, and Köppen samples.",
+      description:
+        "Classroom world map: relief, bathymetry, plates, volcanoes, earthquakes, Köppen, currents, measure, split view. No Google.",
       path: "/tools/map",
     }),
 });
 
-const PRESETS = [
+const CITY_PRESETS = [
   { name: "London", lat: 51.51, lon: -0.13, zoom: 6 },
   { name: "New York", lat: 40.71, lon: -74.01, zoom: 6 },
   { name: "Nairobi", lat: -1.29, lon: 36.82, zoom: 6 },
@@ -31,21 +49,69 @@ const PRESETS = [
   { name: "Singapore", lat: 1.35, lon: 103.82, zoom: 6 },
 ] as const;
 
+type BaseMap = "vector" | "relief" | "political" | "bathymetry";
+type Layers = {
+  rivers: boolean;
+  settlements: boolean;
+  plates: boolean;
+  plateFill: boolean;
+  climate: boolean;
+  volcanoes: boolean;
+  quakes: boolean;
+  currents: boolean;
+  basins: boolean;
+  graticule: boolean;
+  borders: boolean;
+  trenches: boolean;
+  ridges: boolean;
+  arrows: boolean;
+};
+
+const LAYER_OFF: Layers = {
+  rivers: true,
+  settlements: true,
+  plates: true,
+  plateFill: false,
+  climate: false,
+  volcanoes: false,
+  quakes: false,
+  currents: false,
+  basins: false,
+  graticule: false,
+  borders: false,
+  trenches: false,
+  ridges: false,
+  arrows: false,
+};
+
+function sphericalAreaKm2(pts: { lat: number; lon: number }[]): number {
+  if (pts.length < 3) return 0;
+  const R = 6371;
+  const toR = Math.PI / 180;
+  let sum = 0;
+  const n = pts.length;
+  for (let i = 0; i < n; i++) {
+    const a = pts[i]!;
+    const b = pts[(i + 1) % n]!;
+    sum += (b.lon - a.lon) * toR * (2 + Math.sin(a.lat * toR) + Math.sin(b.lat * toR));
+  }
+  return Math.abs((sum * R * R) / 2);
+}
+
 function MapStudio() {
-  const [relief, setRelief] = useState(false);
-  const [rivers, setRivers] = useState(true);
-  const [settlements, setSettlements] = useState(true);
-  const [plates, setPlates] = useState(true);
-  const [climate, setClimate] = useState(false);
-  const [graticule, setGraticule] = useState(false);
+  const [baseMap, setBaseMap] = useState<BaseMap>("vector");
+  const [layers, setLayers] = useState<Layers>(LAYER_OFF);
   const [center, setCenter] = useState<[number, number]>([10, 20]);
   const [zoom, setZoom] = useState(2);
+  const [centerB, setCenterB] = useState<[number, number]>([100, 20]);
+  const [zoomB, setZoomB] = useState(3);
   const [q, setQ] = useState("");
   const [hit, setHit] = useState<MapFeatureHit | null>(null);
   const [opacity, setOpacity] = useState(1);
-  const [measure, setMeasure] = useState<{ a?: { lat: number; lon: number }; b?: { lat: number; lon: number } }>({});
-  const [measuring, setMeasuring] = useState(false);
+  const [path, setPath] = useState<{ lat: number; lon: number }[]>([]);
+  const [measuring, setMeasuring] = useState<"off" | "line" | "area">("off");
   const [projector, setProjector] = useState(false);
+  const [split, setSplit] = useState(false);
   const [land, setLand] = useState<{
     lat: number;
     lon: number;
@@ -53,6 +119,7 @@ function MapStudio() {
     notes: string[];
     kind: string;
   } | null>(null);
+  const [cursor, setCursor] = useState<{ lat: number; lon: number } | null>(null);
 
   const overlays = useMemo(() => {
     const o: {
@@ -64,20 +131,58 @@ function MapStudio() {
       plates?: boolean;
       ranked?: boolean;
       opacity?: number;
+      polygon?: boolean;
     }[] = [];
-    if (rivers) o.push({ id: "rivers", data: RIVERS, color: "#7FD4FF", width: 2.2, opacity });
-    if (plates) o.push({ id: "plates", data: PLATES, color: "#FF6A3D", width: 2.8, plates: true, opacity });
-    if (settlements) o.push({ id: "towns", data: SETTLEMENTS, color: "#E8B86D", circle: true, ranked: true, opacity });
-    if (climate) o.push({ id: "koppen", data: KOPPEN, color: "#3EE0C6", circle: true, opacity });
+    if (layers.plateFill) o.push({ id: "platefill", data: PLATE_POLYS, color: "#3EE0C6", polygon: true, opacity: opacity * 0.9 });
+    if (layers.borders) o.push({ id: "borders", data: BORDERS, color: "#c9d4d0", width: 1.4, opacity });
+    if (layers.rivers) o.push({ id: "rivers", data: RIVERS, color: "#7FD4FF", width: 2.2, opacity });
+    if (layers.basins) o.push({ id: "basins", data: BASINS, color: "#7c9a6a", width: 1.6, opacity });
+    if (layers.currents) o.push({ id: "currents", data: CURRENTS, color: "#7FD4FF", width: 2.4, opacity });
+    if (layers.trenches) o.push({ id: "trenches", data: TRENCHES, color: "#FF6A3D", width: 3.0, opacity });
+    if (layers.ridges) o.push({ id: "ridges", data: RIDGES, color: "#3EE0C6", width: 2.8, opacity });
+    if (layers.arrows) o.push({ id: "arrows", data: PLATE_ARROWS, color: "#E8B86D", width: 2.6, opacity });
+    if (layers.plates) o.push({ id: "plates", data: PLATES, color: "#FF6A3D", width: 2.8, plates: true, opacity });
+    if (layers.settlements) o.push({ id: "towns", data: SETTLEMENTS, color: "#E8B86D", circle: true, ranked: true, opacity });
+    if (layers.climate) o.push({ id: "koppen", data: KOPPEN, color: "#3EE0C6", circle: true, opacity });
+    if (layers.volcanoes) o.push({ id: "volcanoes", data: VOLCANOES, color: "#FF6A3D", circle: true, opacity });
+    if (layers.quakes) o.push({ id: "quakes", data: QUAKES, color: "#E8B86D", circle: true, opacity });
+    if (path.length > 0) {
+      const coords = path.map((p) => [p.lon, p.lat]);
+      const data = {
+        type: "FeatureCollection",
+        features: [
+          {
+            type: "Feature",
+            properties: { name: measuring === "area" ? "Measured area" : "Measured path", kind: "measure", note: "Classroom measure. Great-circle km." },
+            geometry:
+              measuring === "area" && path.length > 2
+                ? { type: "Polygon", coordinates: [[...coords, coords[0]]] }
+                : { type: "LineString", coordinates: coords },
+          },
+        ],
+      };
+      o.push({
+        id: `measure-${path.length}`,
+        data,
+        color: "#3EE0C6",
+        width: 2.8,
+        opacity: 1,
+        polygon: measuring === "area" && path.length > 2,
+      });
+    }
     return o;
-  }, [rivers, settlements, plates, climate, opacity]);
+  }, [layers, opacity, path, measuring]);
 
   const searchHits = useMemo(() => {
     const needle = q.trim().toLowerCase();
     if (needle.length < 2) return [];
-    const fromAtlas = ATLAS.filter((p) => `${p.name} ${p.capital} ${p.hook} ${(p.alias ?? []).join(" ")}`.toLowerCase().includes(needle)).slice(0, 6);
+    const fromAtlas = ATLAS.filter((p) =>
+      `${p.name} ${p.capital} ${p.hook} ${(p.alias ?? []).join(" ")}`.toLowerCase().includes(needle),
+    ).slice(0, 6);
     const fromPoi = SEARCH_POI.filter((p) => p.name.toLowerCase().includes(needle));
+    const fromTeach = TEACHING_PRESETS.filter((p) => p.name.toLowerCase().includes(needle));
     return [
+      ...fromTeach.map((p) => ({ name: p.name, lat: p.lat, lon: p.lon, zoom: p.zoom, note: p.note })),
       ...fromPoi.map((p) => ({ name: p.name, lat: p.lat, lon: p.lon, zoom: p.zoom, note: p.note })),
       ...fromAtlas.map((p) => ({
         name: `${p.name} · ${p.capital}`,
@@ -86,7 +191,7 @@ function MapStudio() {
         zoom: p.kind === "country" ? 4 : 7,
         note: p.hook,
       })),
-    ].slice(0, 8);
+    ].slice(0, 10);
   }, [q]);
 
   function go(lat: number, lon: number, z = 5, name = "", note = "") {
@@ -97,10 +202,43 @@ function MapStudio() {
       lat,
       lon,
       name: name || near?.name || "Dropped point",
-      notes: note ? [note] : near ? atlasGeo(near) : ["Click land for a country, or an overlay for a river, plate, or climate sample."],
+      notes: note ? [note] : near ? atlasGeo(near) : ["Click land for a country, or an overlay for a river, plate, volcano, or quake."],
       kind: near ? atlasKindLabel(near.kind) : "Locator",
     });
     setHit(null);
+  }
+
+  function onClickMap(c: { lat: number; lon: number }, pane: "a" | "b") {
+    if (measuring !== "off") {
+      setPath((p) => [...p, c]);
+      return;
+    }
+    const near = nearestAtlasPlace(c.lat, c.lon);
+    setLand({
+      lat: c.lat,
+      lon: c.lon,
+      name: near ? near.name : "Dropped point",
+      notes: near ? atlasGeo(near) : ["No named place within ~400 km. Read the overlays."],
+      kind: near ? atlasKindLabel(near.kind) : "Locator",
+    });
+    if (pane === "b") {
+      setCenterB([c.lon, c.lat]);
+    }
+  }
+
+  const pathKm = useMemo(() => {
+    let n = 0;
+    for (let i = 1; i < path.length; i++) {
+      const a = path[i - 1]!;
+      const b = path[i]!;
+      n += haversineKm(a.lat, a.lon, b.lat, b.lon);
+    }
+    return n;
+  }, [path]);
+  const areaKm2 = measuring === "area" ? sphericalAreaKm2(path) : 0;
+
+  function setLayer<K extends keyof Layers>(k: K, v: boolean) {
+    setLayers((L) => ({ ...L, [k]: v }));
   }
 
   return (
@@ -108,9 +246,8 @@ function MapStudio() {
       <p className="section-label">Tools</p>
       <h1 className="mt-3 font-display text-4xl">World map studio</h1>
       <p className="mt-4 max-w-2xl text-mist">
-        A readable world map for class. OpenFreeMap vector when it answers; OpenStreetMap raster if it does
-        not; Natural Earth coastlines if both are silent. Overlays are simplified for class, not a GIS desk.
-        No Google.
+        A 15-minute classroom map. Vector coast first; relief, political outlines, or bathymetry on demand.
+        Click a plate, a volcano, a quake, a current, or a country. No Google.
       </p>
       <p className="mt-2 text-sm text-mist">
         Also:{" "}
@@ -123,14 +260,43 @@ function MapStudio() {
         </Link>
       </p>
 
-      <div className="mt-8 flex flex-wrap gap-2">
-        <Toggle on={relief} set={setRelief} label="Relief basemap" />
-        <Toggle on={rivers} set={setRivers} label="Rivers" />
-        <Toggle on={settlements} set={setSettlements} label="Settlements" />
-        <Toggle on={plates} set={setPlates} label="Plate boundaries" />
-        <Toggle on={climate} set={setClimate} label="Köppen samples" />
-        <Toggle on={graticule} set={setGraticule} label="Graticule" />
-        <Toggle on={measuring} set={setMeasuring} label="Measure km" />
+      <p className="section-label mt-8 mb-3">Basemap</p>
+      <div className="flex flex-wrap gap-2">
+        {(
+          [
+            ["vector", "Vector coast"],
+            ["relief", "Relief hillshade"],
+            ["political", "Political outlines"],
+            ["bathymetry", "Bathymetry"],
+          ] as const
+        ).map(([id, label]) => (
+          <Toggle key={id} on={baseMap === id} set={() => setBaseMap(id)} label={label} />
+        ))}
+      </div>
+
+      <p className="section-label mt-6 mb-3">Layers</p>
+      <div className="flex flex-wrap gap-2">
+        <Toggle on={layers.rivers} set={(v) => setLayer("rivers", v)} label="Rivers" />
+        <Toggle on={layers.basins} set={(v) => setLayer("basins", v)} label="Basins" />
+        <Toggle on={layers.settlements} set={(v) => setLayer("settlements", v)} label="Settlements" />
+        <Toggle on={layers.borders} set={(v) => setLayer("borders", v)} label="Borders" />
+        <Toggle on={layers.plates} set={(v) => setLayer("plates", v)} label="Plate boundaries" />
+        <Toggle on={layers.plateFill} set={(v) => setLayer("plateFill", v)} label="Plate polygons" />
+        <Toggle on={layers.arrows} set={(v) => setLayer("arrows", v)} label="Plate arrows" />
+        <Toggle on={layers.trenches} set={(v) => setLayer("trenches", v)} label="Trenches" />
+        <Toggle on={layers.ridges} set={(v) => setLayer("ridges", v)} label="Ridges" />
+        <Toggle on={layers.volcanoes} set={(v) => setLayer("volcanoes", v)} label="Volcanoes" />
+        <Toggle on={layers.quakes} set={(v) => setLayer("quakes", v)} label="Earthquakes" />
+        <Toggle on={layers.currents} set={(v) => setLayer("currents", v)} label="Currents" />
+        <Toggle on={layers.climate} set={(v) => setLayer("climate", v)} label="Köppen" />
+        <Toggle on={layers.graticule} set={(v) => setLayer("graticule", v)} label="Graticule" />
+      </div>
+
+      <p className="section-label mt-6 mb-3">Classroom</p>
+      <div className="flex flex-wrap gap-2">
+        <Toggle on={measuring === "line"} set={(v) => { setMeasuring(v ? "line" : "off"); setPath([]); }} label="Measure km" />
+        <Toggle on={measuring === "area"} set={(v) => { setMeasuring(v ? "area" : "off"); setPath([]); }} label="Measure km²" />
+        <Toggle on={split} set={setSplit} label="Split view" />
         <Toggle on={projector} set={setProjector} label="Projector" />
         <button
           type="button"
@@ -139,6 +305,7 @@ function MapStudio() {
             u.searchParams.set("lat", String(center[1]));
             u.searchParams.set("lon", String(center[0]));
             u.searchParams.set("z", String(zoom));
+            u.searchParams.set("base", baseMap);
             void navigator.clipboard.writeText(u.toString()).catch(() => undefined);
           }}
           className="h-9 rounded-full border border-white/10 px-3.5 text-sm text-mist hover:text-chalk"
@@ -152,6 +319,9 @@ function MapStudio() {
             setZoom(2);
             setHit(null);
             setLand(null);
+            setPath([]);
+            setLayers(LAYER_OFF);
+            setBaseMap("vector");
           }}
           className="h-9 rounded-full border border-white/10 px-3.5 text-sm text-mist hover:text-chalk"
         >
@@ -160,12 +330,24 @@ function MapStudio() {
       </div>
 
       <div className="mt-4 flex flex-wrap gap-2">
-        {PRESETS.map((p) => (
+        {CITY_PRESETS.map((p) => (
           <button
             key={p.name}
             type="button"
             onClick={() => go(p.lat, p.lon, p.zoom, p.name, "")}
             className="h-9 rounded-full border border-white/10 bg-white/6 px-3 text-sm text-chalk hover:bg-white/10"
+          >
+            {p.name}
+          </button>
+        ))}
+      </div>
+      <div className="mt-2 flex flex-wrap gap-2">
+        {TEACHING_PRESETS.map((p) => (
+          <button
+            key={p.name}
+            type="button"
+            onClick={() => go(p.lat, p.lon, p.zoom, p.name, p.note)}
+            className="h-9 rounded-full border border-white/10 px-3 text-sm text-mist hover:bg-white/10 hover:text-chalk"
           >
             {p.name}
           </button>
@@ -191,7 +373,7 @@ function MapStudio() {
         <input
           value={q}
           onChange={(e) => setQ(e.target.value)}
-          placeholder="Country, capital, Himalaya, Amazon, San Andreas…"
+          placeholder="Holderness, Himalaya, San Andreas, Shanghai…"
           className="h-11 w-full rounded-[12px] border border-white/10 bg-white/6 px-3 text-chalk placeholder:text-mist/70"
           suppressHydrationWarning
         />
@@ -215,46 +397,56 @@ function MapStudio() {
         )}
       </label>
 
-      <div className="mt-6">
+      <div className={cn("mt-6 grid gap-4", split && "lg:grid-cols-2")}>
         <LibreMap
           center={center}
           zoom={zoom}
-          relief={relief}
+          baseMap={baseMap}
           overlays={overlays}
-          graticule={graticule}
+          graticule={layers.graticule}
           onFeature={(f) => {
             setHit(f);
-            setLand({
-              lat: f.lat,
-              lon: f.lon,
-              name: f.title,
-              notes: [f.note],
-              kind: f.kind || "Overlay",
-            });
+            setLand({ lat: f.lat, lon: f.lon, name: f.title, notes: [f.note], kind: f.kind || "Overlay" });
           }}
-          onClick={(c) => {
-            if (measuring) {
-              setMeasure((m) => (m.a && !m.b ? { ...m, b: c } : { a: c }));
-              return;
-            }
-            const near = nearestAtlasPlace(c.lat, c.lon);
-            setLand({
-              lat: c.lat,
-              lon: c.lon,
-              name: near ? near.name : "Dropped point",
-              notes: near ? atlasGeo(near) : ["No named place within ~400 km. Read the overlays."],
-              kind: near ? atlasKindLabel(near.kind) : "Locator",
-            });
-          }}
+          onClick={(c) => onClickMap(c, "a")}
+          onMove={setCursor}
           className={cn(
             "h-[min(72vh,42rem)] w-full overflow-hidden rounded-2xl border border-white/10 bg-trench",
             projector && "contrast-125",
           )}
-          label="World map studio"
+          label="World map studio A"
         />
+        {split && (
+          <LibreMap
+            center={centerB}
+            zoom={zoomB}
+            baseMap={baseMap}
+            overlays={overlays}
+            graticule={layers.graticule}
+            onFeature={(f) => {
+              setHit(f);
+              setLand({ lat: f.lat, lon: f.lon, name: f.title, notes: [f.note], kind: f.kind || "Overlay" });
+            }}
+            onClick={(c) => onClickMap(c, "b")}
+            onMove={setCursor}
+            className="h-[min(72vh,42rem)] w-full overflow-hidden rounded-2xl border border-white/10 bg-trench"
+            label="World map studio B"
+          />
+        )}
       </div>
+      {cursor && (
+        <p className="mt-2 font-mono text-[11px] text-mist">
+          Cursor {fmtLatLon(cursor.lat, cursor.lon, 2)}
+        </p>
+      )}
+      {split && (
+        <p className="mt-2 text-sm text-mist">
+          Left pane is Place A. Click the right pane to set Place B. Same layers, two windows — compare a trench
+          with a ridge, or Shanghai with Holderness.
+        </p>
+      )}
 
-      {plates && (
+      {layers.plates && (
         <ul className="mt-4 flex flex-wrap gap-3 font-mono text-[11px] text-mist">
           {PLATE_LEGEND.map((l) => (
             <li key={l.kind}>
@@ -276,7 +468,7 @@ function MapStudio() {
         </ul>
       )}
 
-      {climate && (
+      {layers.climate && (
         <ul className="mt-3 flex flex-wrap gap-x-4 gap-y-1 font-mono text-[11px] text-mist">
           <li><span className="text-chalk">A</span> tropical — no real winter</li>
           <li><span className="text-chalk">B</span> dry — evaporation beats rain</li>
@@ -286,11 +478,16 @@ function MapStudio() {
         </ul>
       )}
 
-      {measure.a && measure.b && (
+      {path.length > 0 && (
         <p className="mt-4 font-mono text-sm text-glacier">
-          Distance {haversineKm(measure.a.lat, measure.a.lon, measure.b.lat, measure.b.lon).toFixed(0)} km
+          {path.length} point{path.length === 1 ? "" : "s"}
+          {path.length > 1 && ` · path ${pathKm.toFixed(0)} km`}
+          {measuring === "area" && path.length > 2 && ` · area ~${areaKm2.toFixed(0)} km²`}
+          {path[0] && ` · last ${fmtLatLon(path[path.length - 1]!.lat, path[path.length - 1]!.lon)}`}
           {" · "}
-          {fmtLatLon(measure.a.lat, measure.a.lon)} → {fmtLatLon(measure.b.lat, measure.b.lon)}
+          <button type="button" className="underline" onClick={() => setPath([])}>
+            Clear measure
+          </button>
         </p>
       )}
       {land && (
@@ -309,8 +506,9 @@ function MapStudio() {
       )}
 
       <p className="mt-4 font-mono text-[11px] text-mist">
-        Natural Earth positions. Overlays simplified for class. OpenFreeMap / OSM / OpenTopoMap. Pan, pinch,
-        double-click zoom, keyboard +/−. Scale bar is metric.
+        Natural Earth positions. Overlays simplified for class — not a GIS desk. OpenFreeMap / OSM / OpenTopoMap /
+        Esri Ocean (GEBCO). Pan, pinch, double-click zoom, keyboard +/−. Scale bar is metric. Cursor click is
+        lat/lon.
       </p>
     </main>
   );

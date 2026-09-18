@@ -1,6 +1,13 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { headFor } from "@/lib/seo";
-import { CONTACT_LINE, PRODUCER_X, PRODUCER_X_HANDLE, SCHOOL_MAIL, SCHOOL_NAME, SCHOOL_URL } from "@/lib/contact";
+import { MailLink } from "@/components/mail-link";
+import {
+  CONTACT_LEAD,
+  PRODUCER_IG,
+  PRODUCER_IG_HANDLE,
+  PRODUCER_X,
+  PRODUCER_X_HANDLE,
+} from "@/lib/contact";
 
 export const Route = createFileRoute("/privacy")({
   component: Privacy,
@@ -46,13 +53,11 @@ function Privacy() {
           account wall.
         </p>
         <p>
-          {CONTACT_LINE}{" "}
-          <a href={SCHOOL_URL} className="text-ice hover:underline" target="_blank" rel="noreferrer">
-            {SCHOOL_NAME}
-          </a>
+          {CONTACT_LEAD} Write to{" "}
+          <MailLink />
           ,{" "}
-          <a href={`mailto:${SCHOOL_MAIL}`} className="text-ice hover:underline">
-            {SCHOOL_MAIL}
+          <a href={PRODUCER_IG} className="text-ice hover:underline" target="_blank" rel="noreferrer">
+            Instagram {PRODUCER_IG_HANDLE}
           </a>
           , or{" "}
           <a href={PRODUCER_X} className="text-ice hover:underline" target="_blank" rel="noreferrer">

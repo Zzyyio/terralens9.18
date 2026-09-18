@@ -4,7 +4,7 @@ import { LAB_SCENES } from "@/labs/registry";
 import { isListed } from "@/lib/labs/status";
 import { teacherArticle } from "@/lib/teachers/article";
 import { Figure } from "@/components/figure";
-import { labFigures } from "@/lib/figures";
+import { labFigures, teacherHero } from "@/lib/figures";
 import { labVideo } from "@/lib/lab-videos";
 import { headFor } from "@/lib/seo";
 import { useState } from "react";
@@ -23,6 +23,7 @@ export const Route = createFileRoute("/teachers/$slug")({
         ? `Fifteen-minute projector script for ${lab.title}. No login.`
         : "Teacher notes.",
       path: `/teachers/${params.slug}`,
+      image: lab ? labFigures(lab.slug)[0]?.src : undefined,
     });
   },
 });
@@ -33,6 +34,7 @@ function TeacherArticlePage() {
   if (!lab || !LAB_SCENES[slug] || !isListed(slug)) throw notFound();
   const article = teacherArticle(lab);
   const figs = labFigures(lab.slug);
+  const hero = teacherHero(lab.slug) ?? figs[0];
   const video = labVideo(lab.slug);
   const more = LABS.filter((l) => l.realm === lab.realm && l.slug !== lab.slug && isListed(l.slug)).slice(0, 4);
   const [copied, setCopied] = useState(false);
@@ -50,11 +52,11 @@ function TeacherArticlePage() {
   }
 
   return (
-    <main id="main" className="mx-auto max-w-[760px] px-5 pb-24 pt-24">
+    <main id="main" className="mx-auto max-w-[760px] px-5 pb-24 pt-24 print:max-w-none print:px-0 print:pt-0">
       <p className="section-label">Teachers</p>
       <p className="mt-2 font-mono text-[11px] uppercase tracking-[0.14em] text-glacier">{article.kicker}</p>
       <h1 className="mt-3 font-display text-4xl text-chalk md:text-5xl">{article.title}</h1>
-      <p className="mt-4 text-sm text-mist">
+      <p className="mt-4 text-sm text-mist" data-print-hide>
         <Link to="/teachers" className="text-ice hover:underline">
           All teacher notes
         </Link>
@@ -70,12 +72,14 @@ function TeacherArticlePage() {
         </button>
       </p>
 
-      {figs[0] && <Figure {...figs[0]} className="mt-8" />}
+      {hero && <Figure {...hero} className="mt-8" />}
 
       {article.sections.map((s) => (
         <section key={s.heading} className="mt-10">
           <h2 className="font-display text-2xl text-chalk">{s.heading}</h2>
-          {s.heading.startsWith("Figures") && figs[1] && <Figure {...figs[1]} className="mt-4" />}
+          {s.heading.startsWith("Figures") && figs[0] && figs[0].src !== hero?.src && (
+            <Figure {...figs[0]} className="mt-4" />
+          )}
           {s.paragraphs.map((p) => (
             <p key={p.slice(0, 72)} className="mt-4 text-[17px] leading-8 text-chalk/90">
               {p}
@@ -85,7 +89,7 @@ function TeacherArticlePage() {
       ))}
 
       {video && (
-        <section className="mt-10">
+        <section className="mt-10" data-print-hide>
           <h2 className="font-display text-2xl text-chalk">In-site film</h2>
           <div className="mt-4 overflow-hidden rounded-2xl border border-white/10">
             <iframe

@@ -1,6 +1,8 @@
 import { useEffect, useRef, useState } from "react";
 import {
   attachStyleFallback,
+  CARTO_VOYAGER_STYLE,
+  ESRI_OCEAN_STYLE,
   FIORD,
   OSM_RASTER_STYLE,
   OSM_RELIEF_STYLE,
@@ -34,6 +36,8 @@ export type Overlay = {
   labels?: boolean;
   /** overlay opacity 0–1 */
   opacity?: number;
+  /** fill polygons (plate interiors) */
+  polygon?: boolean;
 };
 
 type MapHandle = {
@@ -60,9 +64,10 @@ type MapHandle = {
 const CREDIT: Record<MapBasemap, string> = {
   openfreemap: "OpenFreeMap vector · OpenStreetMap contributors",
   osm: "OpenStreetMap raster (fallback if vector tiles were silent)",
-  carto: "OpenStreetMap data · CARTO Voyager (second fallback)",
+  carto: "OpenStreetMap data · CARTO Voyager (political outlines)",
   "natural-earth": "Natural Earth 110m land — offline fallback. Coastlines only.",
   relief: "OpenTopoMap relief · OSM / SRTM. Tibet, rifts and trenches as height.",
+  bathymetry: "Esri Ocean / GEBCO. Seafloor as colour. Not a navigation chart.",
 };
 
 function meridians(): { type: string; features: unknown[] } {
@@ -167,6 +172,7 @@ function applyOverlays(m: MapHandle, overlays: Overlay[], prev: string[], gratic
     if (id === "relief") continue;
     try {
       if (m.getLayer?.(`${id}-label`)) m.removeLayer?.(`${id}-label`);
+      if (m.getLayer?.(`${id}-outline`)) m.removeLayer?.(`${id}-outline`);
       if (m.getLayer?.(id)) m.removeLayer?.(id);
       if (m.getSource(id)) m.removeSource?.(id);
     } catch {
@@ -211,6 +217,27 @@ function applyOverlays(m: MapHandle, overlays: Overlay[], prev: string[], gratic
             "circle-stroke-color": ov.color,
             "circle-stroke-width": 2.2,
             "circle-stroke-opacity": 0.95,
+          },
+        });
+      } else if (ov.polygon) {
+        m.addLayer({
+          id: ov.id,
+          type: "fill",
+          source: ov.id,
+          paint: {
+            "fill-color": ov.color,
+            "fill-opacity": 0.14 * (ov.opacity ?? 1),
+            "fill-outline-color": ov.color,
+          },
+        });
+        m.addLayer({
+          id: `${ov.id}-outline`,
+          type: "line",
+          source: ov.id,
+          paint: {
+            "line-color": ov.color,
+            "line-width": 1.2,
+            "line-opacity": 0.85 * (ov.opacity ?? 1),
           },
         });
       } else if (ov.plates) {
@@ -326,11 +353,13 @@ export function LibreMap({
   zoom = 3,
   styleUrl,
   relief = false,
+  baseMap = "vector",
   overlays = [],
   marker,
   markerB,
   onClick,
   onFeature,
+  onMove,
   className = "h-[28rem] w-full overflow-hidden rounded-2xl border border-white/10 bg-trench",
   label,
   graticule = false,
@@ -340,11 +369,14 @@ export function LibreMap({
   zoom?: number;
   styleUrl?: string;
   relief?: boolean;
+  /** Classroom basemap. Vector first; relief / political / bathymetry on demand. */
+  baseMap?: "vector" | "relief" | "political" | "bathymetry";
   overlays?: Overlay[];
   marker?: [number, number] | null;
   markerB?: [number, number] | null;
   onClick?: (c: MapClick) => void;
   onFeature?: (f: MapFeatureHit) => void;
+  onMove?: (c: MapClick) => void;
   className?: string;
   label?: string;
   graticule?: boolean;
@@ -365,7 +397,9 @@ export function LibreMap({
   clickRef.current = onClick;
   const featRef = useRef(onFeature);
   featRef.current = onFeature;
-  const overlayKey = overlays.map((o) => o.id).join("|") + (graticule ? "|g" : "");
+  const moveRef = useRef(onMove);
+  moveRef.current = onMove;
+  const overlayKey = overlays.map((o) => `${o.id}:${o.opacity ?? 1}:${o.color}:${o.width ?? 0}`).join("|") + (graticule ? "|g" : "");
   const overlaysRef = useRef(overlays);
   overlaysRef.current = overlays;
   const overlayIdsRef = useRef<string[]>([]);
@@ -462,6 +496,9 @@ export function LibreMap({
           }
           clickRef.current?.({ lat: e.lngLat.lat, lon: e.lngLat.lng });
         });
+        m.on("mousemove", (e: { lngLat: { lat: number; lng: number } }) => {
+          moveRef.current?.({ lat: e.lngLat.lat, lon: e.lngLat.lng });
+        });
         if (clickRef.current) m.getCanvas().style.cursor = "crosshair";
         mapRef.current = m as unknown as MapHandle;
         if (marker) {
@@ -514,20 +551,40 @@ export function LibreMap({
   }, [styleUrl, draggableMarker]);
 
   const reliefWas = useRef(false);
+  const baseWas = useRef(baseMap);
   useEffect(() => {
     const m = mapRef.current;
     if (!m) return;
-    if (relief && !reliefWas.current) {
+    if (baseMap !== baseWas.current) {
+      try {
+        if (baseMap === "relief") {
+          m.setStyle(OSM_RELIEF_STYLE);
+          setBasemap("relief");
+        } else if (baseMap === "political") {
+          m.setStyle(CARTO_VOYAGER_STYLE);
+          setBasemap("carto");
+        } else if (baseMap === "bathymetry") {
+          m.setStyle(ESRI_OCEAN_STYLE);
+          setBasemap("bathymetry");
+        } else {
+          m.setStyle(FIORD);
+          setBasemap("openfreemap");
+        }
+      } catch {
+        /* */
+      }
+      baseWas.current = baseMap;
+    } else if (relief && !reliefWas.current) {
       try {
         m.setStyle(OSM_RELIEF_STYLE);
         setBasemap("relief");
       } catch {
         /* */
       }
-    } else if (!relief && reliefWas.current) {
+    } else if (!relief && reliefWas.current && baseMap === "vector") {
       try {
-        m.setStyle(OSM_RASTER_STYLE);
-        setBasemap("osm");
+        m.setStyle(FIORD);
+        setBasemap("openfreemap");
       } catch {
         /* */
       }
@@ -537,8 +594,9 @@ export function LibreMap({
     overlayIdsRef.current = overlays.map((o) => o.id).concat(graticule ? ["graticule"] : []);
     overlays.forEach((o) => {
       if (o.labels !== false && !o.fill) overlayIdsRef.current.push(`${o.id}-label`);
+      if (o.polygon) overlayIdsRef.current.push(`${o.id}-outline`);
     });
-  }, [overlayKey, graticule, relief]);
+  }, [overlayKey, graticule, relief, baseMap]);
 
   useEffect(() => {
     mapRef.current?.flyTo({ center, zoom, essential: true });

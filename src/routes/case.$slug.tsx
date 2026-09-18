@@ -19,6 +19,7 @@ export const Route = createFileRoute("/case/$slug")({
       title: c?.title ?? "Case",
       description: c?.lede ?? "A TerraLens case study.",
       path: `/case/${params.slug}`,
+      image: c ? caseFigure(c.slug)?.src : undefined,
     });
   },
 });
@@ -37,6 +38,7 @@ function CasePage() {
     url: `${siteOrigin()}/case/${c.slug}`,
     educationalLevel: ["KS3", "GCSE", "A-level", "NGSS", "APES"],
     about: c.place,
+    image: fig?.src,
   });
   return (
     <main id="main" className="mx-auto max-w-[720px] px-5 pb-24 pt-24">

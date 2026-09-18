@@ -1,5 +1,5 @@
 import { i as __toESM, r as __require, t as __commonJSMin } from "../../_runtime.mjs";
-import { f as require_with_selector, p as require_jsx_runtime, s as require_react_dom } from "../@react-three/drei+[...].mjs";
+import { d as require_react_dom, f as require_with_selector, p as require_jsx_runtime } from "../@react-three/drei+[...].mjs";
 import { n as require_react } from "../@radix-ui/react-compose-refs+[...].mjs";
 import { r as parseHref } from "../tanstack__history.mjs";
 import { PassThrough, Readable } from "node:stream";

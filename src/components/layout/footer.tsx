@@ -1,5 +1,12 @@
 import { Link } from "@tanstack/react-router";
-import { CONTACT_LINE, PRODUCER_X, SCHOOL_MAIL, SCHOOL_NAME, SCHOOL_URL } from "@/lib/contact";
+import {
+  CONTACT_LEAD,
+  PRODUCER_IG,
+  PRODUCER_IG_HANDLE,
+  PRODUCER_X,
+  PRODUCER_X_HANDLE,
+} from "@/lib/contact";
+import { MailLink } from "@/components/mail-link";
 
 const STUDIO = [
   { to: "/explore", label: "Explore" },
@@ -30,18 +37,16 @@ export function Footer() {
           <p className="mt-4 text-xs leading-5 text-mist">
             Not affiliated with Kongsberg Geospatial or any other TerraLens product.
           </p>
-          <p className="mt-4 text-xs leading-5 text-mist">{CONTACT_LINE}</p>
-          <p className="mt-2 text-xs leading-5">
-            <a href={SCHOOL_URL} className="text-ice hover:underline" target="_blank" rel="noreferrer">
-              {SCHOOL_NAME}
-            </a>
+          <p className="mt-4 text-xs leading-5 text-mist">
+            {CONTACT_LEAD}{" "}
+            <MailLink />
             {" · "}
-            <a href={`mailto:${SCHOOL_MAIL}`} className="text-ice hover:underline">
-              {SCHOOL_MAIL}
+            <a href={PRODUCER_IG} className="text-ice hover:underline" target="_blank" rel="noreferrer">
+              Instagram {PRODUCER_IG_HANDLE}
             </a>
             {" · "}
             <a href={PRODUCER_X} className="text-ice hover:underline" target="_blank" rel="noreferrer">
-              X
+              X {PRODUCER_X_HANDLE}
             </a>
           </p>
           <p className="mt-6 font-mono text-xs text-mist">Free for students and teachers. Always.</p>

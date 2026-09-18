@@ -1,18 +1,21 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { headFor, learningResourceJsonLd, siteOrigin } from "@/lib/seo";
+import { headFor, indexModeLabel, learningResourceJsonLd, siteOrigin } from "@/lib/seo";
 import { LABS } from "@/lib/labs/catalog";
 import { LAB_SCENES } from "@/labs/registry";
 import { isListed } from "@/lib/labs/status";
-import { Figure } from "@/components/figure";
 import { CASES } from "@/lib/cases";
+import { MailLink } from "@/components/mail-link";
 import {
-  CONTACT_LINE,
+  CONTACT_LEAD,
+  PRODUCER_IG,
+  PRODUCER_IG_HANDLE,
   PRODUCER_LINE,
+  PRODUCER_LINE_ZH,
+  PRODUCER_QUOTE,
+  PRODUCER_SITE,
   PRODUCER_X,
   PRODUCER_X_HANDLE,
-  SCHOOL_MAIL,
   SCHOOL_NAME,
-  SCHOOL_URL,
 } from "@/lib/contact";
 
 export const Route = createFileRoute("/about")({
@@ -22,6 +25,7 @@ export const Route = createFileRoute("/about")({
       title: "About",
       description: "A free Earth studio for secondary and high-school students worldwide.",
       path: "/about",
+      image: "/photos/li-zeyu-field.jpg",
     }),
 });
 
@@ -33,9 +37,10 @@ function About() {
     url: `${siteOrigin()}/about`,
     type: "WebPage",
     about: "Earth science education",
+    image: "/photos/li-zeyu-field.jpg",
   });
   return (
-    <main id="main" className="mx-auto max-w-[720px] px-5 pb-24 pt-24">
+    <main id="main" className="mx-auto max-w-[860px] px-5 pb-24 pt-24">
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
       <p className="section-label">About</p>
       <h1 className="mt-3 font-display text-4xl text-chalk md:text-5xl">A free Earth studio.</h1>
@@ -45,12 +50,6 @@ function About() {
           worldwide. It is inspired by the idea that a process you can turn in your hands is a process you
           can explain.
         </p>
-        <Figure
-          src="/photos/earth-apollo17.jpg"
-          alt="The whole Earth as a sphere seen from space, with Africa, Arabia and Antarctica under scattered cloud."
-          caption="A process you can turn in your hands."
-          credit="NASA / Apollo 17, public domain"
-        />
         <p>
           After a lab, a student should be able to say the mechanism in their own words and recognise it on a
           map or in the field. That is the whole product. {n} labs and {CASES.length} case studies sit on the
@@ -64,34 +63,58 @@ function About() {
         <p>Not affiliated with Kongsberg Geospatial or any other TerraLens product.</p>
       </div>
 
-      <h2 className="mt-14 font-display text-2xl">Website producer</h2>
-      <div className="mt-6 overflow-hidden rounded-2xl border border-white/10">
-        <img
-          src="/photos/li-zeyu-field.jpg"
-          alt="A student geologist in an orange hard hat kneeling on a dark laminated rock outcrop, holding a hand sample and a yellow-handled geological hammer."
-          className="w-full object-cover object-top"
-        />
-        <p className="px-4 py-3 font-mono text-[11px] text-mist">Li Zeyu in the field.</p>
-      </div>
-      <p className="mt-5 text-[17px] leading-7 text-chalk/90">{PRODUCER_LINE}</p>
-      <p className="mt-3 text-[15px] leading-7 text-mist">
-        网站制作：李泽宇，地球科学教育者；上海平和学校地质社社长。International English is the classroom language;
-        this line is the bilingual handshake, not a second site.
-      </p>
-      <p className="mt-4 text-sm leading-6 text-mist">
-        <a href={SCHOOL_URL} className="text-ice hover:underline" target="_blank" rel="noreferrer">
-          {SCHOOL_NAME}
-        </a>
-        {" · "}
-        <a href={`mailto:${SCHOOL_MAIL}`} className="text-ice hover:underline">
-          {SCHOOL_MAIL}
-        </a>
-        {" · "}
-        <a href={PRODUCER_X} className="text-ice hover:underline" target="_blank" rel="noreferrer">
-          {PRODUCER_X_HANDLE}
-        </a>
-      </p>
-      <p className="mt-3 text-sm text-mist">{CONTACT_LINE}</p>
+      <h2 className="mt-16 font-display text-2xl">Website producer</h2>
+      <article className="mt-6 overflow-hidden rounded-2xl border border-white/10 bg-white/[0.03]">
+        <div className="grid md:grid-cols-[minmax(0,0.92fr)_minmax(0,1.08fr)]">
+          <div className="relative min-h-[22rem] bg-trench md:min-h-full">
+            <img
+              src="/photos/li-zeyu-field.jpg"
+              alt="Li Zeyu in the field: a student geologist in an orange hard hat kneeling on a dark laminated rock outcrop, holding a hand sample and a yellow-handled geological hammer."
+              className="absolute inset-0 size-full object-cover object-top"
+            />
+          </div>
+          <div className="flex flex-col justify-center p-6 md:p-8">
+            <p className="font-display text-2xl leading-8 text-chalk md:text-[1.65rem] md:leading-9">
+              “{PRODUCER_QUOTE}”
+            </p>
+            <p className="mt-6 text-[15px] leading-7 text-chalk/90">{PRODUCER_LINE}</p>
+            <p className="font-cjk mt-4 text-[15px] leading-7 text-mist">{PRODUCER_LINE_ZH}</p>
+            <p className="mt-2 text-[15px] leading-7 text-mist">
+              International English is the classroom language; this line is the bilingual handshake, not a
+              second site. {SCHOOL_NAME} is the school on the identity line — not a contact desk.
+            </p>
+            <ul className="mt-6 flex flex-col gap-2 text-sm">
+              <li>
+                <MailLink />
+              </li>
+              <li>
+                <a href={PRODUCER_IG} className="text-ice hover:underline" target="_blank" rel="noreferrer">
+                  Instagram {PRODUCER_IG_HANDLE}
+                </a>
+              </li>
+              <li>
+                <a href={PRODUCER_X} className="text-ice hover:underline" target="_blank" rel="noreferrer">
+                  X {PRODUCER_X_HANDLE}
+                </a>
+              </li>
+              <li>
+                <a href={PRODUCER_SITE} className="text-ice hover:underline" target="_blank" rel="noreferrer">
+                  Personal site · zeyuli.grok.me
+                </a>
+              </li>
+            </ul>
+            <p className="mt-6 font-mono text-[11px] uppercase tracking-[0.14em] text-mist">Also builds</p>
+            <p className="mt-2 text-sm leading-6 text-mist">
+              TerraLens (this studio), Mountainstone, and Tuzhi — small tools, same job: make a process
+              visible. This site stays a classroom, not a portfolio.
+            </p>
+            <p className="mt-4 text-xs leading-5 text-mist">
+              {CONTACT_LEAD}{" "}
+              <MailLink />
+            </p>
+          </div>
+        </div>
+      </article>
 
       <h2 className="mt-14 font-display text-2xl">Curriculum tags</h2>
       <p className="mt-4 text-mist">
@@ -147,7 +170,8 @@ function About() {
 
       <h2 className="mt-14 font-display text-2xl">Version</h2>
       <p className="mt-4 text-mist">
-        Studio model pass, September 2026. See also{" "}
+        Classroom studio, September 2026. Indexing is {indexModeLabel()}: published terralens.grok.me is
+        open to crawlers; sandbox preview and local hosts send noindex. See also{" "}
         <Link to="/privacy" className="text-ice hover:underline">
           Privacy
         </Link>

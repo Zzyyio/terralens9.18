@@ -5,7 +5,7 @@ import { pageTitle } from "@/lib/seo";
 
 export function NotFoundPage() {
   useEffect(() => {
-    document.title = pageTitle("Not on the chart");
+    document.title = pageTitle("This coordinate is empty ocean");
   }, []);
   return (
     <main id="main" className="relative flex min-h-dvh items-center px-6 pt-14">

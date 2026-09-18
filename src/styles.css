@@ -103,6 +103,16 @@
       background: white;
       color: #111;
     }
+    a {
+      color: #111;
+    }
+    img {
+      max-height: 14rem;
+      object-fit: contain;
+    }
+    main {
+      padding-top: 0 !important;
+    }
   }
 }
 
@@ -131,4 +141,8 @@
     transition-duration: 0.01ms !important;
     scroll-behavior: auto !important;
   }
+}
+
+.font-cjk {
+  font-family: "Noto Sans SC Bio", "PingFang SC", "Noto Sans SC", "Microsoft YaHei", sans-serif;
 }

@@ -137,7 +137,6 @@ export function LabPlayer({ lab, scene }: { lab: LabMeta; scene: ReactNode }) {
       </h1>
       {!projector && (
         <>
-          <p className="mt-2 max-w-lg text-sm leading-6 text-mist">{lab.hook}</p>
           <div className="mt-3 flex flex-wrap items-center gap-x-1.5 gap-y-1.5">
             {lab.curriculum.map((c) => (
               <Badge key={c} tone="mist" className="shrink-0 whitespace-nowrap">

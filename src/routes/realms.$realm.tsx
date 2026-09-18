@@ -20,6 +20,7 @@ export const Route = createFileRoute("/realms/$realm")({
       title: meta?.title ?? "Realm",
       description: meta?.blurb ?? "TerraLens realm.",
       path: `/realms/${params.realm}`,
+      image: meta ? REALM_FIGURE[meta.slug]?.src : undefined,
     });
   },
   component: RealmPage,

@@ -39,8 +39,6 @@ function Glossary() {
     return GLOSSARY.filter((g) => g.term.replace(/[^A-Za-z]/g, "").charAt(0).toUpperCase() === letter);
   }, [needle, letter]);
 
-  const shownSrc = new Set<string>();
-
   return (
     <main id="main" className="mx-auto max-w-[800px] px-5 pb-24 pt-24">
       <p className="section-label">Glossary</p>
@@ -111,14 +109,12 @@ function Glossary() {
       <dl className="mt-6 divide-y divide-white/10 border-y border-white/10">
         {list.map((g) => {
           const fig = termFigure(g.term);
-          const show = fig && !shownSrc.has(fig.src);
-          if (fig && show) shownSrc.add(fig.src);
           return (
             <div key={`${g.term}-${g.lab}`} className="py-5">
               <dt className="font-display text-xl text-chalk">{g.term}</dt>
               {g.exam && <dd className="font-mono text-[11px] text-glacier">{g.exam}</dd>}
               <dd className="mt-2 text-mist">{g.def}</dd>
-              {show && fig && <Figure {...fig} className="mt-3 max-w-md" />}
+              {fig && <Figure {...fig} className="mt-3 max-w-md" />}
               <dd className="mt-2">
                 <Link to="/lab/$slug" params={{ slug: g.lab }} className="text-sm text-ice hover:underline">
                   {g.labTitle}

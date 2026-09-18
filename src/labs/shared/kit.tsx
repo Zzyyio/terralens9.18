@@ -38,12 +38,14 @@ export function Tag({
   const inspectNote =
     note ?? `${name} is a named part of this teaching model. Drive a slider or play; the geometry should change.`;
   const active = inspect?.name === name;
+  const projector = layout === "projector";
+  const hideBehind = occlude && !projector;
   return (
     <Html
       position={pos}
       center
-      occlude={occlude ? "blending" : undefined}
-      zIndexRange={layout === "projector" ? [20, 0] : [10, 0]}
+      occlude={hideBehind ? "blending" : undefined}
+      zIndexRange={projector ? [20, 0] : [10, 0]}
       style={{ pointerEvents: "auto" }}
     >
       <button
@@ -53,7 +55,8 @@ export function Tag({
           setInspect(active ? null : { name, note: inspectNote });
         }}
         className={cn(
-          "whitespace-nowrap rounded-full border bg-basalt/85 px-2.5 py-1 font-mono text-[11px] shadow-lg",
+          "whitespace-nowrap rounded-full border bg-basalt/90 px-2.5 py-1 font-mono shadow-lg",
+          projector ? "text-[13px] leading-4 tracking-[0.02em]" : "text-[11px]",
           tones[tone],
           active ? "border-glacier/60 text-glacier" : "border-white/15",
         )}
@@ -160,8 +163,8 @@ export function StudioEnvironment() {
 
 /** Key + fill + weak rim + studio IBL so packed glTF metals and rock read as different substances. */
 export function LabLights({
-  ambient = 0.18,
-  keyIntensity = 1.85,
+  ambient = 0.24,
+  keyIntensity = 2.15,
 }: {
   ambient?: number;
   keyIntensity?: number;
@@ -169,7 +172,7 @@ export function LabLights({
   return (
     <>
       <StudioEnvironment />
-      <hemisphereLight args={["#9ec4d4", "#1c1814", 0.38]} />
+      <hemisphereLight args={["#9ec4d4", "#1c1814", 0.48]} />
       <ambientLight intensity={ambient} color="#c9d4d0" />
       <directionalLight
         position={[4.2, 5.8, 3.2]}
@@ -186,7 +189,7 @@ export function LabLights({
         shadow-camera-top={9}
         shadow-camera-bottom={-9}
       />
-      <directionalLight position={[-3.4, 1.4, -2.4]} intensity={0.42} color="#7fd4ff" />
+      <directionalLight position={[-3.4, 1.6, -2.8]} intensity={0.42} color="#7fd4ff" />
       <directionalLight position={[0.2, -2.4, 4]} intensity={0.24} color="#f4efe6" />
     </>
   );

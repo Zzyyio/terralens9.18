@@ -1,4 +1,5 @@
 import type { FigureProps } from "@/components/figure";
+import { CASE_COVER_EXTRA } from "@/lib/photo-assign";
 
 type Fig = Pick<FigureProps, "src" | "alt" | "caption" | "credit">;
 const P = "/photos";
@@ -120,16 +121,16 @@ export const CASE_FIGURE: Record<string, Fig> = {
     credit: "Wikimedia Commons, CC BY",
   },
   colorado: {
-    src: `${P}/grand-canyon.jpg`,
-    alt: "A high plateau canyon cut through layered rock.",
+    src: `${P}/cases/colorado.jpg`,
+    alt: "The Colorado Front Range: height writes the air.",
     caption: "A mile-high step onto the plains. Height writes the air.",
     credit: "NPS, public domain",
   },
   greenwich: {
-    src: `${P}/earth-apollo17.jpg`,
-    alt: "The whole Earth as a sphere seen from space.",
+    src: `${P}/cases/greenwich.jpg`,
+    alt: "The Royal Observatory at Greenwich — a political line on a spinning sphere.",
     caption: "Longitude is a bargain about a line, not a physical ridge.",
-    credit: "NASA / Apollo 17, public domain",
+    credit: "Wikimedia Commons, CC BY-SA",
   },
   "time-zones-us": {
     src: `${P}/africa-globe.jpg`,
@@ -144,16 +145,16 @@ export const CASE_FIGURE: Record<string, Fig> = {
     credit: "TerraLens classroom drawing after USGS layer radii",
   },
   "snowdonia-moon": {
-    src: `${P}/moon.jpg`,
-    alt: "Gibbous Moon with visible craters.",
+    src: `${P}/cases/snowdonia-moon.jpg`,
+    alt: "First-quarter Moon with earthshine.",
     caption: "The same phase is up in Eryri that night. Weather is local. Phase is not.",
     credit: "NASA, public domain",
   },
   "yosemite-moon": {
-    src: `${P}/moon.jpg`,
-    alt: "Gibbous Moon with visible craters.",
+    src: `${P}/cases/yosemite-moon.jpg`,
+    alt: "A waning Moon — the same phase everywhere that night.",
     caption: "Phase is a viewing angle. A valley does not change the Moon.",
-    credit: "NASA, public domain",
+    credit: "NASA / Wikimedia, public domain",
   },
   "outer-banks": {
     src: `${P}/outer-banks.jpg`,
@@ -204,8 +205,8 @@ export const CASE_FIGURE: Record<string, Fig> = {
     credit: "Wikimedia Commons, CC BY-SA",
   },
   "typhoon-mangkhut": {
-    src: `${P}/hurricane.jpg`,
-    alt: "A tropical cyclone with a clear eye seen from orbit.",
+    src: `${P}/cases/typhoon-mangkhut.jpg`,
+    alt: "Typhoon Mangkhut from orbit.",
     caption: "A typhoon is a tropical cyclone. The same warm-core engine, a western North Pacific name.",
     credit: "NASA, public domain",
   },
@@ -218,5 +219,11 @@ export const CASE_FIGURE: Record<string, Fig> = {
 };
 
 export function caseFigure(slug: string): Fig | undefined {
-  return CASE_FIGURE[slug];
+  const extra = CASE_COVER_EXTRA[slug];
+  if (extra) {
+    return { src: extra.src, alt: extra.alt, caption: extra.caption, credit: extra.credit };
+  }
+  const base = CASE_FIGURE[slug];
+  if (!base) return undefined;
+  return { ...base, src: `/photos/cases/${slug}.jpg` };
 }

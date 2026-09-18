@@ -12,9 +12,9 @@ var install_page_default = "<!DOCTYPE html>\n<html lang=\"en\" class=\"device-de
 //#endregion
 //#region \0virtual:grok-og-identity
 var grokOgIdentity = { "site": {
-	"title": "TerraLens",
+	"title": "",
 	"card": "custom",
-	"description": "A free geoscience studio. See how the Earth works.",
+	"description": "Free 3D labs for geography and Earth science students. See how the Earth works.",
 	"image": "/og.jpg"
 } };
 //#endregion
@@ -461,6 +461,9 @@ var CSP = [
 		"https://*.tile.opentopomap.org",
 		"https://tile.opentopomap.org",
 		"https://*.basemaps.cartocdn.com",
+		"https://services.arcgisonline.com",
+		"https://server.arcgisonline.com",
+		"https://*.arcgisonline.com",
 		"https://demotiles.maplibre.org",
 		"https://grok.com",
 		"https://*.grok.com"

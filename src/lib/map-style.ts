@@ -63,6 +63,14 @@ export const OSM_RELIEF_STYLE = rasterStyle(
   17,
 );
 
+/** GEBCO-derived ocean floor via Esri’s ocean basemap. Classroom bathymetry, not a chart for navigation. */
+export const ESRI_OCEAN_STYLE = rasterStyle(
+  "ocean",
+  ["https://services.arcgisonline.com/arcgis/rest/services/Ocean/World_Ocean_Base/MapServer/tile/{z}/{y}/{x}"],
+  "Esri / GEBCO / NOAA · ocean bathymetry",
+  16,
+);
+
 export const OPEN_TOPO_TILES = [
   "https://a.tile.opentopomap.org/{z}/{x}/{y}.png",
   "https://b.tile.opentopomap.org/{z}/{x}/{y}.png",
@@ -99,7 +107,7 @@ export const NATURAL_EARTH_STYLE = {
   ],
 };
 
-export type MapBasemap = "openfreemap" | "osm" | "carto" | "natural-earth" | "relief";
+export type MapBasemap = "openfreemap" | "osm" | "carto" | "natural-earth" | "relief" | "bathymetry";
 
 type MapLike = {
   on: (ev: string, fn: (e?: { error?: { status?: number; message?: string }; sourceDataType?: string }) => void) => void;

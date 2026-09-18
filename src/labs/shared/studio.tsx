@@ -2,6 +2,7 @@ import type { ReactNode } from "react";
 import type { CanvasProps } from "@react-three/fiber";
 import { ContactShadows } from "@react-three/drei";
 import { ClientCanvas, useWebGL } from "@/components/globe/client-canvas";
+import { LabThumb } from "@/components/lab-thumb";
 import { usePrefersReducedMotion } from "@/hooks/use-media";
 import { useLabControls } from "@/lib/store/lab-controls";
 import { GenericFallback } from "./fallback";
@@ -44,7 +45,14 @@ export function LabStudio({
 
   if (webgl === null) {
     return (
-      <div className="flex size-full items-center justify-center bg-void text-sm text-mist">Loading lab…</div>
+      <div className="flex size-full flex-col items-center justify-center bg-void p-6">
+        <div className="w-full max-w-md overflow-hidden rounded-2xl border border-white/10">
+          <div className="aspect-[16/10] bg-trench">
+            <LabThumb slug={slug} />
+          </div>
+        </div>
+        <p className="mt-3 font-mono text-sm text-mist">Loading {title}…</p>
+      </div>
     );
   }
 
